@@ -131,7 +131,7 @@
         const factor3 = new Decimal(1.40);
         const factor4 = new Decimal(1.60);
 
-        const boostFactor = new Decimal(1.12);
+        const boostFactor = new Decimal(2);
         const tickspeedFactor = new Decimal(4);
         let exponentUpgradeCost = new Decimal(1e15);
         let exponentIncrease = new Decimal(3);
@@ -181,7 +181,7 @@
 
             document.getElementById("tickspeed-upgrade").classList.toggle("disabled", antimatter.lessThan(tickspeedCost));
 
-            document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires ${formatNumber(boostFactor.times(20))} 4th Dimensions<br>Current Boost: ${formatNumber(boostMultiplier)}×`;
+            document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires 20 4th Dimensions<br>Current Boost: ${formatNumber(Decimal.pow(2, dimensionBoosts))}×`;
             document.getElementById("dimension-boost").classList.toggle("disabled", dimension4.lessThan(boostFactor.times(20)));
 
             document.getElementById("exponent-upgrade").innerHTML = `Upgrade exponent of BP gain by +0.2 | Cost: ${formatNumber(exponentUpgradeCost)} | Current Exponent: ^${formatNumber(exponentIncrease)}`;
