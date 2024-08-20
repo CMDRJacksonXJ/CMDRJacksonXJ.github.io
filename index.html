@@ -179,6 +179,7 @@
             document.getElementById("dimension3").classList.toggle("disabled", antimatter.lessThan(cost3));
             document.getElementById("dimension4").classList.toggle("disabled", antimatter.lessThan(cost4));
 
+            document.getElementById("tickspeed-upgrade").innerHTML = `Tickspeed Upgrade (Cost: ${formatNumber(tickspeedCost)} | Boost: ${formatNumber(tickspeedBoost)}×)`;
             document.getElementById("tickspeed-upgrade").classList.toggle("disabled", antimatter.lessThan(tickspeedCost));
 
             document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires 20 4th Dimensions<br>Current Boost: ${formatNumber(Decimal.pow(2, dimensionBoosts))}×`;
