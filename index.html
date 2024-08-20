@@ -192,7 +192,7 @@
             document.getElementById("tickspeed-upgrade").classList.toggle("disabled", antimatter.lessThan(tickspeedCost));
 
             document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires ${formatNumber((dimensionBoosts.plus(1)).times(20))} 4th Dimensions<br>Current Boost: ${formatNumber(Decimal.pow(2, dimensionBoosts))}×`;
-            document.getElementById("dimension-boost").classList.toggle("disabled", dimension4.lessThan((dimensionBoosts.plus(1)).times(20))));
+            document.getElementById("dimension-boost").classList.toggle("disabled", dimension4.lessThan((dimensionBoosts.plus(1)).times(20)));
 
             document.getElementById("exponent-upgrade").innerHTML = `Upgrade exponent of BP gain by +0.2 | Cost: ${formatNumber(exponentUpgradeCost)} | Current Exponent: ^${formatNumber(exponentIncrease)}`;
             document.getElementById("exponent-upgrade").classList.toggle("disabled", antimatter.lessThan(exponentUpgradeCost));
