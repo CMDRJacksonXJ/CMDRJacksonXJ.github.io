@@ -86,6 +86,11 @@
                     boostPoints = new Decimal(data.boostPoints);
                     exponentUpgradeCost = new Decimal(data.exponentUpgradeCost);
                     exponentIncrease = new Decimal(data.exponentIncrease);
+                    cost1: new Decimal(data.cost1);
+                    cost2: new Decimal(data.cost2);
+                    cost3: new Decimal(data.cost3);
+                    cost4: new Decimal(data.cost4);
+                    
                     lastAntimatter = antimatter;
                 } catch (e) {
                     console.error("Error loading game state from cookie", e);
@@ -107,6 +112,10 @@
                 boostPoints: boostPoints.toString(),
                 exponentUpgradeCost: exponentUpgradeCost.toString(),
                 exponentIncrease: exponentIncrease.toString()
+                cost1: cost1.toString()
+                cost2: cost2.toString()
+                cost3: cost3.toString()
+                cost4: cost4.toString()
             };
 
             document.cookie = `gameState=${encodeURIComponent(JSON.stringify(gameState))}; path=/; max-age=31536000`;
