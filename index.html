@@ -36,7 +36,7 @@
             background-color: #444;
         }
         #am-per-second {
-            font-size: 1em;
+            font-size: 0.5em;
             color: gray;
         }
     </style>
@@ -73,19 +73,23 @@
                 ?.split('=')[1];
 
             if (savedData) {
-                const data = JSON.parse(decodeURIComponent(savedData));
-                antimatter = new Decimal(data.antimatter);
-                dimension1 = new Decimal(data.dimension1);
-                dimension2 = new Decimal(data.dimension2);
-                dimension3 = new Decimal(data.dimension3);
-                dimension4 = new Decimal(data.dimension4);
-                tickspeedCost = new Decimal(data.tickspeedCost);
-                tickspeedBoost = new Decimal(data.tickspeedBoost);
-                dimensionBoosts = new Decimal(data.dimensionBoosts);
-                boostPoints = new Decimal(data.boostPoints);
-                exponentUpgradeCost = new Decimal(data.exponentUpgradeCost);
-                exponentIncrease = new Decimal(data.exponentIncrease);
-                lastAntimatter = antimatter;
+                try {
+                    const data = JSON.parse(decodeURIComponent(savedData));
+                    antimatter = new Decimal(data.antimatter);
+                    dimension1 = new Decimal(data.dimension1);
+                    dimension2 = new Decimal(data.dimension2);
+                    dimension3 = new Decimal(data.dimension3);
+                    dimension4 = new Decimal(data.dimension4);
+                    tickspeedCost = new Decimal(data.tickspeedCost);
+                    tickspeedBoost = new Decimal(data.tickspeedBoost);
+                    dimensionBoosts = new Decimal(data.dimensionBoosts);
+                    boostPoints = new Decimal(data.boostPoints);
+                    exponentUpgradeCost = new Decimal(data.exponentUpgradeCost);
+                    exponentIncrease = new Decimal(data.exponentIncrease);
+                    lastAntimatter = antimatter;
+                } catch (e) {
+                    console.error("Error loading game state from cookie", e);
+                }
             }
         }
 
@@ -107,8 +111,6 @@
 
             document.cookie = `gameState=${encodeURIComponent(JSON.stringify(gameState))}; path=/; max-age=31536000`;
         }
-
-        loadProgress();
 
         let antimatter = new Decimal(10);
         let dimension1 = new Decimal(0);
@@ -136,6 +138,9 @@
 
         let lastAntimatter = antimatter;
         let antimatterPerSecond = new Decimal(0);
+
+        // Ensure game state is loaded before starting the game loop
+        loadProgress();
 
         setInterval(() => {
             let boostMultiplier = Decimal.pow(2, dimensionBoosts);
@@ -174,7 +179,6 @@
             document.getElementById("dimension3").classList.toggle("disabled", antimatter.lessThan(cost3));
             document.getElementById("dimension4").classList.toggle("disabled", antimatter.lessThan(cost4));
 
-            document.getElementById("tickspeed-upgrade").innerHTML = `Tickspeed Upgrade (Cost: ${formatNumber(tickspeedCost)} | Boost: ${tickspeedBoost.toFixed(2)}×)`;
             document.getElementById("tickspeed-upgrade").classList.toggle("disabled", antimatter.lessThan(tickspeedCost));
 
             document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires ${formatNumber(boostFactor.times(20))} 4th Dimensions<br>Current Boost: ${formatNumber(boostMultiplier)}×`;
@@ -248,7 +252,7 @@
             }
         }
 
-        setInterval(saveProgress, 5000); // Save progress every 5 seconds
+        setInterval(saveProgress, 30000); // Save progress every 30 seconds
     </script>
 </body>
 </html>
