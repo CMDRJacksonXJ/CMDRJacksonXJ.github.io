@@ -153,7 +153,7 @@
 
         setInterval(() => {
             let boostMultiplier = Decimal.pow(2, dimensionBoosts);
-            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 1);
+            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 2);
 
             antimatter = antimatter.plus(dimension1.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
             dimension1 = dimension1.plus(dimension2.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
@@ -208,7 +208,7 @@
         }
 
         function buyDimensionBoost() {
-            if (dimension4.greaterThanOrEqualTo(boostFactor.times(20))) {
+            if (dimension4.greaterThanOrEqualTo((dimensionBoosts.plus(1)).times(20))) {
                 antimatter = new Decimal(10);
                 dimension1 = new Decimal(0);
                 dimension2 = new Decimal(0);
@@ -218,6 +218,8 @@
                 cost2 = new Decimal(100);
                 cost3 = new Decimal(10000);
                 cost4 = new Decimal(100000000);
+                tickspeedCost = new Decimal(1000);
+                tickspeedBoost = new Decimal(1);
                 dimensionBoosts = dimensionBoosts.plus(1);
                 boostPoints = boostPoints.plus(Decimal.pow(dimensionBoosts, exponentIncrease).div(5000));
                 updateDimensionButtons();
