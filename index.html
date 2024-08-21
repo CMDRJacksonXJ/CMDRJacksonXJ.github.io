@@ -171,7 +171,7 @@
 
         setInterval(() => {
             boostPoints = boostPoints.plus(Decimal.pow(dimensionBoosts, exponentIncrease).div(5000));
-            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 1);
+            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 2);
             document.getElementById("boost-points").textContent = `You have ${formatNumber(boostPoints)} Boost Points, multiplying all dimensions by ${formatNumber(totalBoost)}×`;
         }, 20);
 
