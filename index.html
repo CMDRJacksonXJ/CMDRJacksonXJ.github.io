@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antimatter Dimensions NG+Boost</title>
+    <title>Antimatter Dimensions Simplified</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap">
     <style>
         body {
@@ -43,7 +43,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 </head>
 <body>
-    <h1>Antimatter Dimensions NG+Boost</h1>
+    <h1>Antimatter Dimensions Simplified</h1>
     
     <div id="counter">You have <span class="number">10.0</span> antimatter</div>
     <div id="am-per-second">You are gaining 0.0 antimatter per second.</div>
@@ -65,33 +65,7 @@
     </div>
 
     <script>
-        let antimatter = new Decimal(10);
-        let dimension1 = new Decimal(0);
-        let dimension2 = new Decimal(0);
-        let dimension3 = new Decimal(0);
-        let dimension4 = new Decimal(0);
-        let tickspeedCost = new Decimal(1000);
-        let tickspeedBoost = new Decimal(1);
-        let dimensionBoosts = new Decimal(0);
-        let boostPoints = new Decimal(0);
-
-        let cost1 = new Decimal(10);
-        let cost2 = new Decimal(100);
-        let cost3 = new Decimal(10000);
-        let cost4 = new Decimal(100000000);
-        const factor1 = new Decimal(1.12);
-        const factor2 = new Decimal(1.24);
-        const factor3 = new Decimal(1.40);
-        const factor4 = new Decimal(1.60);
-
-        const boostFactor = new Decimal(1.12);
-        const tickspeedFactor = new Decimal(4);
-        let exponentUpgradeCost = new Decimal(1e15);
-        let exponentIncrease = new Decimal(3);
-
-        let lastAntimatter = antimatter;
-        let antimatterPerSecond = new Decimal(0);
-
+        // Load progress from cookie
         function loadProgress() {
             const savedData = document.cookie
                 .split('; ')
@@ -112,11 +86,6 @@
                     boostPoints = new Decimal(data.boostPoints);
                     exponentUpgradeCost = new Decimal(data.exponentUpgradeCost);
                     exponentIncrease = new Decimal(data.exponentIncrease);
-                    cost1 = new Decimal(data.cost1);
-                    cost2 = new Decimal(data.cost2);
-                    cost3 = new Decimal(data.cost3);
-                    cost4 = new Decimal(data.cost4);
-                    
                     lastAntimatter = antimatter;
                 } catch (e) {
                     console.error("Error loading game state from cookie", e);
@@ -124,6 +93,7 @@
             }
         }
 
+        // Save progress to cookie
         function saveProgress() {
             const gameState = {
                 antimatter: antimatter.toString(),
@@ -136,17 +106,65 @@
                 dimensionBoosts: dimensionBoosts.toString(),
                 boostPoints: boostPoints.toString(),
                 exponentUpgradeCost: exponentUpgradeCost.toString(),
-                exponentIncrease: exponentIncrease.toString(),
-                cost1: cost1.toString(),
-                cost2: cost2.toString(),
-                cost3: cost3.toString(),
-                cost4: cost4.toString()
+                exponentIncrease: exponentIncrease.toString()
             };
 
             document.cookie = `gameState=${encodeURIComponent(JSON.stringify(gameState))}; path=/; max-age=31536000`;
         }
 
+        let antimatter = new Decimal(10);
+        let dimension1 = new Decimal(0);
+        let dimension2 = new Decimal(0);
+        let dimension3 = new Decimal(0);
+        let dimension4 = new Decimal(0);
+        let tickspeedCost = new Decimal(1000);
+        let tickspeedBoost = new Decimal(1);
+        let dimensionBoosts = new Decimal(0);
+        let boostPoints = new Decimal(0);
+
+        let cost1 = new Decimal(10);
+        let cost2 = new Decimal(100);
+        let cost3 = new Decimal(10000);
+        let cost4 = new Decimal(100000000);
+        const factor1 = new Decimal(1.12);
+        const factor2 = new Decimal(1.24);
+        const factor3 = new Decimal(1.40);
+        const factor4 = new Decimal(1.60);
+
+        const boostFactor = new Decimal(2);
+        const tickspeedFactor = new Decimal(4);
+        let exponentUpgradeCost = new Decimal(1e15);
+        let exponentIncrease = new Decimal(3);
+
+        let lastAntimatter = antimatter;
+        let antimatterPerSecond = new Decimal(0);
+
+        // Ensure game state is loaded before starting the game loop
         loadProgress();
+
+        setInterval(() => {
+            let boostMultiplier = Decimal.pow(2, dimensionBoosts);
+            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 1);
+
+            antimatter = antimatter.plus(dimension1.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
+            dimension1 = dimension1.plus(dimension2.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
+            dimension2 = dimension2.plus(dimension3.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
+            dimension3 = dimension3.plus(dimension4.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
+
+            document.getElementById("counter").innerHTML = `You have <span class="number">${formatNumber(antimatter)}</span> antimatter`;
+
+            antimatterPerSecond = antimatter.minus(lastAntimatter).times(50);
+            lastAntimatter = antimatter;
+            document.getElementById("am-per-second").textContent = `You are gaining ${formatNumber(antimatterPerSecond)} antimatter per second.`;
+
+            updateDimensionButtons();
+        }, 20);
+
+        setInterval(() => {
+            boostPoints = boostPoints.plus(Decimal.pow(dimensionBoosts, exponentIncrease).div(5000));
+            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 1);
+            document.getElementById("boost-points").textContent = `You have ${formatNumber(boostPoints)} Boost Points, multiplying all dimensions by ${formatNumber(totalBoost)}×`;
+        }, 20);
 
         function updateDimensionButtons() {
             let boostMultiplier = Decimal.pow(2, dimensionBoosts);
@@ -164,8 +182,8 @@
             document.getElementById("tickspeed-upgrade").innerHTML = `Tickspeed Upgrade (Cost: ${formatNumber(tickspeedCost)} | Boost: ${formatNumber(tickspeedBoost)}×)`;
             document.getElementById("tickspeed-upgrade").classList.toggle("disabled", antimatter.lessThan(tickspeedCost));
 
-            document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires ${formatNumber((dimensionBoosts.plus(1)).times(20))} 4th Dimensions<br>Current Boost: ${formatNumber(Decimal.pow(2, dimensionBoosts))}×`;
-            document.getElementById("dimension-boost").classList.toggle("disabled", dimension4.lessThan((dimensionBoosts.plus(1)).times(20)));
+            document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires 20 4th Dimensions<br>Current Boost: ${formatNumber(Decimal.pow(2, dimensionBoosts))}×`;
+            document.getElementById("dimension-boost").classList.toggle("disabled", dimension4.lessThan(boostFactor.times(20)));
 
             document.getElementById("exponent-upgrade").innerHTML = `Upgrade exponent of BP gain by +0.2 | Cost: ${formatNumber(exponentUpgradeCost)} | Current Exponent: ^${formatNumber(exponentIncrease)}`;
             document.getElementById("exponent-upgrade").classList.toggle("disabled", antimatter.lessThan(exponentUpgradeCost));
@@ -174,30 +192,26 @@
         function buyTickspeedUpgrade() {
             if (antimatter.greaterThanOrEqualTo(tickspeedCost)) {
                 antimatter = antimatter.minus(tickspeedCost);
-                tickspeedBoost = tickspeedBoost.times(boostFactor);
                 tickspeedCost = tickspeedCost.times(tickspeedFactor);
-                updateUI();
+                tickspeedBoost = tickspeedBoost.times(boostFactor);
+                updateDimensionButtons();
             }
         }
 
         function buyDimensionBoost() {
-            if (dimension4.greaterThanOrEqualTo(dimensionBoosts.plus(1).times(20))) {
+            if (dimension4.greaterThanOrEqualTo(boostFactor.times(20))) {
                 antimatter = new Decimal(10);
                 dimension1 = new Decimal(0);
                 dimension2 = new Decimal(0);
                 dimension3 = new Decimal(0);
                 dimension4 = new Decimal(0);
-                dimensionBoosts = dimensionBoosts.plus(1);
-                boostPoints = boostPoints.plus(0.01);
                 cost1 = new Decimal(10);
                 cost2 = new Decimal(100);
                 cost3 = new Decimal(10000);
                 cost4 = new Decimal(100000000);
-                tickspeedCost = new Decimal(1000);
-                tickspeedBoost = new Decimal(1);
-                exponentIncrease = new Decimal(3);
-                exponentUpgradeCost = new Decimal(1e15);
-                updateUI();
+                dimensionBoosts = dimensionBoosts.plus(1);
+                boostPoints = boostPoints.plus(Decimal.pow(dimensionBoosts, exponentIncrease).div(5000));
+                updateDimensionButtons();
             }
         }
 
@@ -206,73 +220,40 @@
                 antimatter = antimatter.minus(exponentUpgradeCost);
                 exponentIncrease = exponentIncrease.plus(0.2);
                 exponentUpgradeCost = exponentUpgradeCost.times(1e9);
-                updateUI();
+                updateDimensionButtons();
             }
         }
 
-        function buyDimension(dimension) {
-            let cost;
-            switch (dimension) {
-                case 1:
-                    cost = cost1;
-                    if (antimatter.greaterThanOrEqualTo(cost)) {
-                        antimatter = antimatter.minus(cost);
-                        dimension1 = dimension1.plus(1);
-                        cost1 = cost1.times(factor1);
-                    }
-                    break;
-                case 2:
-                    cost = cost2;
-                    if (antimatter.greaterThanOrEqualTo(cost)) {
-                        antimatter = antimatter.minus(cost);
-                        dimension2 = dimension2.plus(1);
-                        cost2 = cost2.times(factor2);
-                    }
-                    break;
-                case 3:
-                    cost = cost3;
-                    if (antimatter.greaterThanOrEqualTo(cost)) {
-                        antimatter = antimatter.minus(cost);
-                        dimension3 = dimension3.plus(1);
-                        cost3 = cost3.times(factor3);
-                    }
-                    break;
-                case 4:
-                    cost = cost4;
-                    if (antimatter.greaterThanOrEqualTo(cost)) {
-                        antimatter = antimatter.minus(cost);
-                        dimension4 = dimension4.plus(1);
-                        cost4 = cost4.times(factor4);
-                    }
-                    break;
+        function buyDimension(dimensionNumber) {
+            if (dimensionNumber === 1 && antimatter.greaterThanOrEqualTo(cost1)) {
+                antimatter = antimatter.minus(cost1);
+                dimension1 = dimension1.plus(1);
+                cost1 = cost1.times(factor1);
+            } else if (dimensionNumber === 2 && antimatter.greaterThanOrEqualTo(cost2)) {
+                antimatter = antimatter.minus(cost2);
+                dimension2 = dimension2.plus(1);
+                cost2 = cost2.times(factor2);
+            } else if (dimensionNumber === 3 && antimatter.greaterThanOrEqualTo(cost3)) {
+                antimatter = antimatter.minus(cost3);
+                dimension3 = dimension3.plus(1);
+                cost3 = cost3.times(factor3);
+            } else if (dimensionNumber === 4 && antimatter.greaterThanOrEqualTo(cost4)) {
+                antimatter = antimatter.minus(cost4);
+                dimension4 = dimension4.plus(1);
+                cost4 = cost4.times(factor4);
             }
-            updateUI();
-        }
-
-        function updateUI() {
-            document.querySelector(".number").textContent = antimatter.toFixed(1);
-            document.getElementById("am-per-second").textContent = `You are gaining ${formatNumber(antimatterPerSecond)} antimatter per second.`;
-            document.getElementById("boost-points").innerHTML = `You have ${boostPoints.toFixed(2)} Boost Points, multiplying all dimensions by ${Decimal.pow(1.2, boostPoints).toFixed(2)}×`;
-
             updateDimensionButtons();
-            saveProgress();
         }
 
-        function calculateAntimatterPerSecond() {
-            antimatterPerSecond = new Decimal(0);
-            antimatterPerSecond = antimatterPerSecond.plus(dimension1.times(tickspeedBoost));
-            antimatterPerSecond = antimatterPerSecond.plus(dimension2.times(dimension1.times(boostPoints)));
-            antimatterPerSecond = antimatterPerSecond.plus(dimension3.times(dimension2.times(boostPoints)));
-            antimatterPerSecond = antimatterPerSecond.plus(dimension4.times(dimension3.times(boostPoints)));
+        function formatNumber(number) {
+            if (number.greaterThanOrEqualTo(1e6)) {
+                return number.toExponential(2).replace('e+', 'e');
+            } else {
+                return number.toFixed(2);
+            }
         }
 
-        function gameLoop() {
-            calculateAntimatterPerSecond();
-            antimatter = antimatter.plus(antimatterPerSecond.div(20));
-            updateUI();
-        }
-
-        setInterval(gameLoop, 50);
+        setInterval(saveProgress, 30000); // Save progress every 30 seconds
     </script>
 </body>
 </html>
