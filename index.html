@@ -39,36 +39,6 @@
             font-size: 0.5em;
             color: gray;
         }
-        #infinity-button {
-            display: none;
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 10px;
-            background-color: gold;
-            color: black;
-            border: none;
-            cursor: pointer;
-        }
-        #infinity-tab {
-            display: none;
-            margin-top: 20px;
-        }
-        #infinity-tab h2 {
-            margin-bottom: 10px;
-        }
-        #infinity-tab button {
-            margin: 10px;
-            padding: 10px;
-            background-color: #444;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        #infinity-tab button.disabled {
-            background-color: #777;
-            cursor: not-allowed;
-        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
 </head>
@@ -86,16 +56,6 @@
     
     <div id="exponent-upgrade" class="dimension" onclick="buyExponentUpgrade()">Upgrade exponent of BP gain by +0.2 | Cost: 1.00e15 | Current Exponent: ^3.0</div>
 
-    <button id="infinity-button" onclick="doInfinity()">Infinity</button>
-
-    <div id="infinity-tab">
-        <h2>Infinity Upgrades</h2>
-        <div>You have <span id="infinity-points">0</span> Infinity Points</div>
-        <button id="upgrade-tickspeed" onclick="buyInfinityUpgrade(1)">Tickspeed upgrades now boost 1.15x instead of 1.12x (Cost: 1 IP)</button>
-        <button id="upgrade-max-dimensions" onclick="buyInfinityUpgrade(2)">You can now Buy Max dimensions (Cost: 2 IP)</button>
-        <button id="upgrade-max-tickspeed" onclick="buyInfinityUpgrade(3)">You can now Buy Max tickspeed upgrades (Cost: 2 IP)</button>
-    </div>
-
     <h2>Dimensions</h2>
     <div id="dimensions">
         <div id="dimension1" class="dimension disabled" onclick="buyDimension(1)">Dimension 1: 0 (Cost: 10 Antimatter)</div>
@@ -105,7 +65,33 @@
     </div>
 
     <script>
-        // Load progress from cookie
+        let antimatter = new Decimal(10);
+        let dimension1 = new Decimal(0);
+        let dimension2 = new Decimal(0);
+        let dimension3 = new Decimal(0);
+        let dimension4 = new Decimal(0);
+        let tickspeedCost = new Decimal(1000);
+        let tickspeedBoost = new Decimal(1);
+        let dimensionBoosts = new Decimal(0);
+        let boostPoints = new Decimal(0);
+
+        let cost1 = new Decimal(10);
+        let cost2 = new Decimal(100);
+        let cost3 = new Decimal(10000);
+        let cost4 = new Decimal(100000000);
+        const factor1 = new Decimal(1.12);
+        const factor2 = new Decimal(1.24);
+        const factor3 = new Decimal(1.40);
+        const factor4 = new Decimal(1.60);
+
+        const boostFactor = new Decimal(1.12);
+        const tickspeedFactor = new Decimal(4);
+        let exponentUpgradeCost = new Decimal(1e15);
+        let exponentIncrease = new Decimal(3);
+
+        let lastAntimatter = antimatter;
+        let antimatterPerSecond = new Decimal(0);
+
         function loadProgress() {
             const savedData = document.cookie
                 .split('; ')
@@ -130,9 +116,7 @@
                     cost2 = new Decimal(data.cost2);
                     cost3 = new Decimal(data.cost3);
                     cost4 = new Decimal(data.cost4);
-                    infinityPoints = new Decimal(data.infinityPoints || 0);
-                    infinityUpgrades = data.infinityUpgrades || [];
-
+                    
                     lastAntimatter = antimatter;
                 } catch (e) {
                     console.error("Error loading game state from cookie", e);
@@ -140,7 +124,6 @@
             }
         }
 
-        // Save progress to cookie
         function saveProgress() {
             const gameState = {
                 antimatter: antimatter.toString(),
@@ -157,189 +140,139 @@
                 cost1: cost1.toString(),
                 cost2: cost2.toString(),
                 cost3: cost3.toString(),
-                cost4: cost4.toString(),
-                infinityPoints: infinityPoints.toString(),
-                infinityUpgrades: infinityUpgrades
+                cost4: cost4.toString()
             };
 
             document.cookie = `gameState=${encodeURIComponent(JSON.stringify(gameState))}; path=/; max-age=31536000`;
         }
 
-        let antimatter = new Decimal(10);
-        let dimension1 = new Decimal(0);
-        let dimension2 = new Decimal(0);
-        let dimension3 = new Decimal(0);
-        let dimension4 = new Decimal(0);
-        let tickspeedCost = new Decimal(1000);
-        let tickspeedBoost = new Decimal(1);
-        let dimensionBoosts = new Decimal(0);
-        let boostPoints = new Decimal(0);
-        let infinityPoints = new Decimal(0);
-        let infinityUpgrades = [];
-
-        let cost1 = new Decimal(10);
-        let cost2 = new Decimal(100);
-        let cost3 = new Decimal(10000);
-        let cost4 = new Decimal(100000000);
-        const factor1 = new Decimal(1.12);
-        const factor2 = new Decimal(1.24);
-        const factor3 = new Decimal(1.40);
-        const factor4 = new Decimal(1.60);
-
-        const boostFactor = new Decimal(1.12);
-        const tickspeedFactor = new Decimal(4);
-        let exponentUpgradeCost = new Decimal(1e15);
-        let exponentIncrease = new Decimal(3);
-
-        let lastAntimatter = antimatter;
-        let antimatterPerSecond = new Decimal(0);
-
         loadProgress();
 
-        function updateDisplay() {
-            document.querySelector("#counter .number").textContent = antimatter.toExponential(2);
-            antimatterPerSecond = dimension1.plus(dimension2.times(2)).plus(dimension3.times(3)).plus(dimension4.times(4)).times(tickspeedBoost).times(boostPoints.plus(1).times(0.2)).times(boostFactor);
-            document.getElementById("am-per-second").textContent = `You are gaining ${antimatterPerSecond.toExponential(2)} antimatter per second.`;
+        function updateDimensionButtons() {
+            let boostMultiplier = Decimal.pow(2, dimensionBoosts);
 
-            document.getElementById("dimension1").textContent = `Dimension 1: ${dimension1} (Cost: ${cost1.toExponential(2)} Antimatter)`;
-            document.getElementById("dimension2").textContent = `Dimension 2: ${dimension2} (Cost: ${cost2.toExponential(2)} Antimatter)`;
-            document.getElementById("dimension3").textContent = `Dimension 3: ${dimension3} (Cost: ${cost3.toExponential(2)} Antimatter)`;
-            document.getElementById("dimension4").textContent = `Dimension 4: ${dimension4} (Cost: ${cost4.toExponential(2)} Antimatter)`;
+            document.getElementById("dimension1").innerHTML = `Dimension 1: ${formatNumber(dimension1)} (Cost: ${formatNumber(cost1)})`;
+            document.getElementById("dimension2").innerHTML = `Dimension 2: ${formatNumber(dimension2)} (Cost: ${formatNumber(cost2)})`;
+            document.getElementById("dimension3").innerHTML = `Dimension 3: ${formatNumber(dimension3)} (Cost: ${formatNumber(cost3)})`;
+            document.getElementById("dimension4").innerHTML = `Dimension 4: ${formatNumber(dimension4)} (Cost: ${formatNumber(cost4)})`;
 
-            if (dimension4.gte(20)) {
-                document.getElementById("dimension-boost").classList.remove("disabled");
-            } else {
-                document.getElementById("dimension-boost").classList.add("disabled");
-            }
+            document.getElementById("dimension1").classList.toggle("disabled", antimatter.lessThan(cost1));
+            document.getElementById("dimension2").classList.toggle("disabled", antimatter.lessThan(cost2));
+            document.getElementById("dimension3").classList.toggle("disabled", antimatter.lessThan(cost3));
+            document.getElementById("dimension4").classList.toggle("disabled", antimatter.lessThan(cost4));
 
-            if (antimatter.gte(infinityThreshold)) {
-                document.getElementById("infinity-button").style.display = "block";
-            } else {
-                document.getElementById("infinity-button").style.display = "none";
-            }
+            document.getElementById("tickspeed-upgrade").innerHTML = `Tickspeed Upgrade (Cost: ${formatNumber(tickspeedCost)} | Boost: ${formatNumber(tickspeedBoost)}×)`;
+            document.getElementById("tickspeed-upgrade").classList.toggle("disabled", antimatter.lessThan(tickspeedCost));
 
-            if (infinityPoints.gte(1)) {
-                document.getElementById("infinity-tab").style.display = "block";
-                document.getElementById("infinity-points").textContent = infinityPoints.toString();
-            }
+            document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires ${formatNumber((dimensionBoosts.plus(1)).times(20))} 4th Dimensions<br>Current Boost: ${formatNumber(Decimal.pow(2, dimensionBoosts))}×`;
+            document.getElementById("dimension-boost").classList.toggle("disabled", dimension4.lessThan((dimensionBoosts.plus(1)).times(20)));
 
-            // Update Infinity Upgrades
-            const upgrade1 = document.getElementById("upgrade-tickspeed");
-            const upgrade2 = document.getElementById("upgrade-max-dimensions");
-            const upgrade3 = document.getElementById("upgrade-max-tickspeed");
-
-            if (infinityPoints.gte(1) && !infinityUpgrades.includes(1)) {
-                upgrade1.classList.remove("disabled");
-            } else {
-                upgrade1.classList.add("disabled");
-            }
-
-            if (infinityPoints.gte(2) && !infinityUpgrades.includes(2)) {
-                upgrade2.classList.remove("disabled");
-            } else {
-                upgrade2.classList.add("disabled");
-            }
-
-            if (infinityPoints.gte(2) && !infinityUpgrades.includes(3)) {
-                upgrade3.classList.remove("disabled");
-            } else {
-                upgrade3.classList.add("disabled");
-            }
-
-            saveProgress();
+            document.getElementById("exponent-upgrade").innerHTML = `Upgrade exponent of BP gain by +0.2 | Cost: ${formatNumber(exponentUpgradeCost)} | Current Exponent: ^${formatNumber(exponentIncrease)}`;
+            document.getElementById("exponent-upgrade").classList.toggle("disabled", antimatter.lessThan(exponentUpgradeCost));
         }
 
         function buyTickspeedUpgrade() {
-            if (antimatter.gte(tickspeedCost)) {
+            if (antimatter.greaterThanOrEqualTo(tickspeedCost)) {
                 antimatter = antimatter.minus(tickspeedCost);
+                tickspeedBoost = tickspeedBoost.times(boostFactor);
                 tickspeedCost = tickspeedCost.times(tickspeedFactor);
-                tickspeedBoost = tickspeedBoost.times(infinityUpgrades.includes(1) ? 1.15 : 1.12);
-                updateDisplay();
+                updateUI();
             }
         }
 
         function buyDimensionBoost() {
-            if (dimension4.gte(20)) {
-                dimension1 = new Decimal(0);
-                dimension2 = new Decimal(0);
-                dimension3 = new Decimal(0);
-                dimension4 = new Decimal(0);
-                cost1 = new Decimal(10);
-                cost2 = new Decimal(100);
-                cost3 = new Decimal(10000);
-                cost4 = new Decimal(100000000);
-                dimensionBoosts = dimensionBoosts.plus(1);
-                boostPoints = boostPoints.plus(dimensionBoosts.times(0.01));
-                updateDisplay();
-            }
-        }
-
-        function buyExponentUpgrade() {
-            if (antimatter.gte(exponentUpgradeCost)) {
-                antimatter = antimatter.minus(exponentUpgradeCost);
-                exponentUpgradeCost = exponentUpgradeCost.times(1e9);
-                exponentIncrease = exponentIncrease.plus(0.2);
-                updateDisplay();
-            }
-        }
-
-        const infinityThreshold = new Decimal("1e200");
-
-        function doInfinity() {
-            if (antimatter.gte(infinityThreshold)) {
+            if (dimension4.greaterThanOrEqualTo(dimensionBoosts.plus(1).times(20))) {
                 antimatter = new Decimal(10);
                 dimension1 = new Decimal(0);
                 dimension2 = new Decimal(0);
                 dimension3 = new Decimal(0);
                 dimension4 = new Decimal(0);
-                tickspeedCost = new Decimal(1000);
-                tickspeedBoost = new Decimal(1);
-                dimensionBoosts = new Decimal(0);
-                boostPoints = new Decimal(0);
-                exponentUpgradeCost = new Decimal(1e15);
-                exponentIncrease = new Decimal(3);
+                dimensionBoosts = dimensionBoosts.plus(1);
+                boostPoints = boostPoints.plus(0.01);
                 cost1 = new Decimal(10);
                 cost2 = new Decimal(100);
                 cost3 = new Decimal(10000);
                 cost4 = new Decimal(100000000);
-                infinityPoints = infinityPoints.plus(1);
-                updateDisplay();
+                tickspeedCost = new Decimal(1000);
+                tickspeedBoost = new Decimal(1);
+                exponentIncrease = new Decimal(3);
+                exponentUpgradeCost = new Decimal(1e15);
+                updateUI();
             }
         }
 
-        function buyInfinityUpgrade(upgradeId) {
-            if (infinityUpgrades.includes(upgradeId)) return;
+        function buyExponentUpgrade() {
+            if (antimatter.greaterThanOrEqualTo(exponentUpgradeCost)) {
+                antimatter = antimatter.minus(exponentUpgradeCost);
+                exponentIncrease = exponentIncrease.plus(0.2);
+                exponentUpgradeCost = exponentUpgradeCost.times(1e9);
+                updateUI();
+            }
+        }
 
-            switch (upgradeId) {
+        function buyDimension(dimension) {
+            let cost;
+            switch (dimension) {
                 case 1:
-                    if (infinityPoints.gte(1)) {
-                        infinityPoints = infinityPoints.minus(1);
-                        infinityUpgrades.push(1);
+                    cost = cost1;
+                    if (antimatter.greaterThanOrEqualTo(cost)) {
+                        antimatter = antimatter.minus(cost);
+                        dimension1 = dimension1.plus(1);
+                        cost1 = cost1.times(factor1);
                     }
                     break;
                 case 2:
-                    if (infinityPoints.gte(2)) {
-                        infinityPoints = infinityPoints.minus(2);
-                        infinityUpgrades.push(2);
+                    cost = cost2;
+                    if (antimatter.greaterThanOrEqualTo(cost)) {
+                        antimatter = antimatter.minus(cost);
+                        dimension2 = dimension2.plus(1);
+                        cost2 = cost2.times(factor2);
                     }
                     break;
                 case 3:
-                    if (infinityPoints.gte(2)) {
-                        infinityPoints = infinityPoints.minus(2);
-                        infinityUpgrades.push(3);
+                    cost = cost3;
+                    if (antimatter.greaterThanOrEqualTo(cost)) {
+                        antimatter = antimatter.minus(cost);
+                        dimension3 = dimension3.plus(1);
+                        cost3 = cost3.times(factor3);
+                    }
+                    break;
+                case 4:
+                    cost = cost4;
+                    if (antimatter.greaterThanOrEqualTo(cost)) {
+                        antimatter = antimatter.minus(cost);
+                        dimension4 = dimension4.plus(1);
+                        cost4 = cost4.times(factor4);
                     }
                     break;
             }
-
-            updateDisplay();
+            updateUI();
         }
 
-        setInterval(() => {
-            antimatter = antimatter.plus(antimatterPerSecond.div(20));
-            updateDisplay();
-        }, 50);
+        function updateUI() {
+            document.querySelector(".number").textContent = antimatter.toFixed(1);
+            document.getElementById("am-per-second").textContent = `You are gaining ${formatNumber(antimatterPerSecond)} antimatter per second.`;
+            document.getElementById("boost-points").innerHTML = `You have ${boostPoints.toFixed(2)} Boost Points, multiplying all dimensions by ${Decimal.pow(1.2, boostPoints).toFixed(2)}×`;
 
-        updateDisplay();
+            updateDimensionButtons();
+            saveProgress();
+        }
+
+        function calculateAntimatterPerSecond() {
+            antimatterPerSecond = new Decimal(0);
+            antimatterPerSecond = antimatterPerSecond.plus(dimension1.times(tickspeedBoost));
+            antimatterPerSecond = antimatterPerSecond.plus(dimension2.times(dimension1.times(boostPoints)));
+            antimatterPerSecond = antimatterPerSecond.plus(dimension3.times(dimension2.times(boostPoints)));
+            antimatterPerSecond = antimatterPerSecond.plus(dimension4.times(dimension3.times(boostPoints)));
+        }
+
+        function gameLoop() {
+            calculateAntimatterPerSecond();
+            antimatter = antimatter.plus(antimatterPerSecond.div(20));
+            updateUI();
+        }
+
+        setInterval(gameLoop, 50);
     </script>
 </body>
 </html>
