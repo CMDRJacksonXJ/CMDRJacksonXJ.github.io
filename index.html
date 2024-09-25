@@ -3,257 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antimatter Dimensions Simplified</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap">
+    <title>Money Increment Game</title>
     <style>
         body {
+            background-color: #2b2b2b;
             font-family: 'Roboto Mono', monospace;
-            text-align: center;
-            margin: 20px;
-            background-color: #202020;
             color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            height: 100vh;
+            flex-direction: column;
         }
-        h1, h2 {
-            margin-bottom: 20px;
+        .container {
+            padding: 20px;
         }
-        .number {
+        .counter {
+            font-size: 28pt;
             font-weight: bold;
-            font-size: 2em;
         }
-        .dimension {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #333;
-            border: 1px solid #555;
+        .mps, .energyMPS {
+            font-size: 9pt;
+        }
+        .energy-container {
+            text-align: right;
+            color: yellow;
+            
+        }
+        button {
+            margin-top: 0px;
+            padding: 6px 20px;
+            font-size: 16pt;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
-        .dimension.disabled {
-            background-color: #555;
-            cursor: not-allowed;
+        button:hover {
+            background-color: #45a049;
         }
-        .dimension:hover:not(.disabled) {
-            background-color: #444;
+        .hidden {
+            display: none;
         }
-        #am-per-second {
-            font-size: 0.5em;
-            color: gray;
+        .prestige-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20%;
+            border-top: 10px solid white;
+            background-color: #2b2b2b;
+            color: lightblue;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .prestige-counter {
+            font-size: 20pt;
+            font-weight: bold;
+        }
+        .prestige-boost {
+            font-size: 9pt;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Antimatter Dimensions Simplified</h1>
-    
-    <div id="counter">You have <span class="number">10.0</span> antimatter</div>
-    <div id="am-per-second">You are gaining 0.0 antimatter per second.</div>
+    <div class="container">
+        <button id="saveButton" onclick="save()">Save Game Data!</button><br>
+        <div class="mps" id="mpsDisplay">0/s</div>
+        <div class="counter" id="counter">$0</div>
+        <button onclick="incrementCounter()">+1 $</button><br>
+        <button id="upgrade1Button" onclick="buyBaseMPSUpgrade()">+1$/sec (Cost: $20)</button><br>
+        <button id="upgrade2Button" onclick="buyMultMPSUpgrade()">Multiply $/sec by 2 (Cost: $300)</button><br>
+        <button id="unlockEnergyButton" onclick="unlockEnergy()">Unlock Energy (Cost: $30000)</button><br>
+        <div class="energy-container hidden" id="energySection">
+            <div class="energyMPS" id="energyMPSDisplay">0.00 J / s</div>
+            <div class="counter" id="joulesCounter">0 J</div>
+            <div class="energyBoost" id="energyBoostDisplay">Boosting $/s by 1.000x</div>
+            <button id="jouleUpgradeButton" onclick="buyJouleUpgrade()">+1 Joule Per Second (Cost: $500)</button><br>
+            <button id="prestigeUpgrade1Button" onclick="prestigeUpgrade1()">Energy remains unlocked on prestige (Cost: 5 PP)</button><br>
+            <button id="prestigeUpgrade2Button" onclick="prestigeUpgrade2()">You start a Prestige with $100 (Cost: 15 PP)</button><br>
+            <button id="prestigeUpgrade3Button" onclick="prestigeUpgrade3()">You gain 0.1% of Prestige Points every second (Cost: 50 PP)</button><br>
+        </div>
+        <button id="unlockPrestigeButton" class="hidden" onclick="unlockPrestige()">Unlock Prestige (Cost: 30000 J)</button>
+    </div>
 
-    <div id="tickspeed-upgrade" class="dimension" onclick="buyTickspeedUpgrade()">Tickspeed Upgrade (Cost: 1,000 | Boost: 1.00×)</div>
-
-    <div id="dimension-boost" class="dimension" onclick="buyDimensionBoost()">Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires 20 4th Dimensions<br>Current Boost: 1×</div>
-
-    <div id="boost-points">You have 0.00 Boost Points, multiplying all dimensions by 1.00×</div>
-    
-    <div id="exponent-upgrade" class="dimension" onclick="buyExponentUpgrade()">Upgrade exponent of BP gain by +0.2 | Cost: 1.00e15 | Current Exponent: ^3.0</div>
-
-    <h2>Dimensions</h2>
-    <div id="dimensions">
-        <div id="dimension1" class="dimension disabled" onclick="buyDimension(1)">Dimension 1: 0 (Cost: 10 Antimatter)</div>
-        <div id="dimension2" class="dimension disabled" onclick="buyDimension(2)">Dimension 2: 0 (Cost: 100 Antimatter)</div>
-        <div id="dimension3" class="dimension disabled" onclick="buyDimension(3)">Dimension 3: 0 (Cost: 10,000 Antimatter)</div>
-        <div id="dimension4" class="dimension disabled" onclick="buyDimension(4)">Dimension 4: 0 (Cost: 100,000,000 Antimatter)</div>
+    <div class="prestige-section hidden" id="prestigeSection">
+        <div class="prestige-counter" id="prestigePointsCounter">0 Prestige Points</div>
+        <div class="prestige-boost" id="prestigeBoostDisplay">Boosting Joule gain by 1.000x</div>
+        <button id="prestigeButton" class="hidden" onclick="prestige()">Prestige for 0 Prestige Points</button>
+        <div id="prestigeRequirement" class="prestige-boost hidden">0 Joules until next Prestige Point</div>
     </div>
 
     <script>
-        // Load progress from cookie
-        function loadProgress() {
-            const savedData = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('gameState='))
-                ?.split('=')[1];
+        let money = 0;
+        let baseMPS = 0;
+        let multMPS = 1;
+        let baseMPSUpgradeCost = 20;
+        let multMPSUpgradeCost = 300;
 
-            if (savedData) {
-                try {
-                    const data = JSON.parse(decodeURIComponent(savedData));
-                    antimatter = new Decimal(data.antimatter);
-                    dimension1 = new Decimal(data.dimension1);
-                    dimension2 = new Decimal(data.dimension2);
-                    dimension3 = new Decimal(data.dimension3);
-                    dimension4 = new Decimal(data.dimension4);
-                    tickspeedCost = new Decimal(data.tickspeedCost);
-                    tickspeedBoost = new Decimal(data.tickspeedBoost);
-                    dimensionBoosts = new Decimal(data.dimensionBoosts);
-                    boostPoints = new Decimal(data.boostPoints);
-                    exponentUpgradeCost = new Decimal(data.exponentUpgradeCost);
-                    exponentIncrease = new Decimal(data.exponentIncrease);
-                    lastAntimatter = antimatter;
-                } catch (e) {
-                    console.error("Error loading game state from cookie", e);
+        let joules = 0;
+        let joulesPerSecond = 0;
+        let jouleUpgradeCost = 500;
+        let energyUnlocked = false;
+
+        let prestigePoints = 0;
+        let prestigeUnlocked = false;
+
+        let prestigeUpg1Bought = false;
+        let prestigeUpg2Bought = false;
+        let prestigeUpg3Bought = false;
+
+        load();
+
+        const counterElement = document.getElementById('counter');
+        const mpsDisplayElement = document.getElementById('mpsDisplay');
+        const upgrade1Button = document.getElementById('upgrade1Button');
+        const upgrade2Button = document.getElementById('upgrade2Button');
+        const unlockEnergyButton = document.getElementById('unlockEnergyButton');
+        const energySection = document.getElementById('energySection');
+        const joulesCounter = document.getElementById('joulesCounter');
+        const energyMPSDisplay = document.getElementById('energyMPSDisplay');
+        const energyBoostDisplay = document.getElementById('energyBoostDisplay');
+        const jouleUpgradeButton = document.getElementById('jouleUpgradeButton');
+        const prestigeSection = document.getElementById('prestigeSection');
+        const prestigePointsCounter = document.getElementById('prestigePointsCounter');
+        const prestigeBoostDisplay = document.getElementById('prestigeBoostDisplay');
+        const prestigeButton = document.getElementById('prestigeButton');
+        const unlockPrestigeButton = document.getElementById('unlockPrestigeButton');
+        const prestigeRequirement = document.getElementById('prestigeRequirement');
+        const prestigeUpgrade1Button = document.getElementById('prestigeUpgrade1Button');
+        const prestigeUpgrade2Button = document.getElementById('prestigeUpgrade2Button');
+        const prestigeUpgrade3Button = document.getElementById('prestigeUpgrade3Button');
+
+        function incrementCounter() {
+            money++;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            counterElement.textContent = `$${formatNumber(Math.round(money))}`;
+            mpsDisplayElement.textContent = `${formatNumber(Math.round(baseMPS * multMPS * getEnergyBoost()))}/s`;
+
+            if (energyUnlocked) {
+                if (joules < 1000) {
+                    joulesCounter.textContent = `${Math.round(joules)} J`;
+                } else if (joules < 1000000) {
+                    joulesCounter.textContent = `${(joules/1000).toFixed(2)} kJ`;
+                } else if (joules < 1e9) {
+                    joulesCounter.textContent = `${(joules/1000000).toFixed(2)} MJ`;
+                } else if (joules < 1e12) {
+                    joulesCounter.textContent = `${(joules/1000000000).toFixed(2)} GJ`;
+                } else {
+                    joulesCounter.textContent = `${(joules/1000000000000).toFixed(2)} TJ`
+                }
+                energyMPSDisplay.textContent = `${formatNumber((Math.round(joulesPerSecond * getPrestigeBoost() * 100) / 100).toFixed(2))} J / s`;
+                if (getEnergyBoost() <= 1000000) {
+                    energyBoostDisplay.textContent = `Boosting $/s by ${(getEnergyBoost()).toFixed(3)}x`;
+                } else {
+                    energyBoostDisplay.textContent = `Boosting $/s by ${formatNumber(getEnergyBoost())}x`;
                 }
             }
+
+            if (prestigeUnlocked) {
+                prestigePointsCounter.textContent = `${formatNumber(prestigePoints)} Prestige Points`;
+                if (getPrestigeBoost() <= 1000000) {
+                    prestigeBoostDisplay.textContent = `Boosting Joule gain by ${(getPrestigeBoost()).toFixed(3)}x`;
+                } else {
+                    prestigeBoostDisplay.textContent = `Boosting Joule gain by ${formatNumber(getPrestigeBoost())}x`;
+                }
+                if (!prestigeUpg1Bought) {
+                    prestigeUpgrade1Button.classList.remove('hidden')
+                }
+                if (!prestigeUpg2Bought) {
+                    prestigeUpgrade2Button.classList.remove('hidden')
+                }
+                if (!prestigeUpg3Bought) {
+                    prestigeUpgrade3Button.classList.remove('hidden')
+                }
+                if (joules >= 30000) {
+                    let prestigePointsGain = calculatePrestigePoints(joules);
+                    prestigeButton.textContent = `Prestige for ${formatNumber(prestigePointsGain)} Prestige Points`;
+                    prestigeButton.classList.remove('hidden');
+                } else {
+                    prestigeButton.classList.add('hidden');
+                }
+
+                // Calculate and display Joules until next Prestige Point
+                const joulesNeededForNextPoint = calculateJoulesNeededForNextPoint(Math.floor(calculatePrestigePoints(joules)) + 1);
+                const joulesUntilNextPoint = Math.max(0, Math.ceil(joulesNeededForNextPoint - joules));
+                prestigeRequirement.textContent = `${formatNumber(joulesUntilNextPoint)} Joules until next Prestige Point`;
+                prestigeRequirement.classList.remove('hidden');
+            }
+
+            if (joules >= 30000 && !prestigeUnlocked) {
+                unlockPrestigeButton.classList.remove('hidden');
+            }
         }
 
-        // Save progress to cookie
-        function saveProgress() {
-            const gameState = {
-                antimatter: antimatter.toString(),
-                dimension1: dimension1.toString(),
-                dimension2: dimension2.toString(),
-                dimension3: dimension3.toString(),
-                dimension4: dimension4.toString(),
-                tickspeedCost: tickspeedCost.toString(),
-                tickspeedBoost: tickspeedBoost.toString(),
-                dimensionBoosts: dimensionBoosts.toString(),
-                boostPoints: boostPoints.toString(),
-                exponentUpgradeCost: exponentUpgradeCost.toString(),
-                exponentIncrease: exponentIncrease.toString()
-            };
-
-            document.cookie = `gameState=${encodeURIComponent(JSON.stringify(gameState))}; path=/; max-age=31536000`;
+        function save(){
+            localStorage.setItem("money", money);
+            localStorage.setItem("baseMPS", baseMPS);
+            localStorage.setItem("multMPS", multMPS);
+            localStorage.setItem("baseMPSUpgradeCost", baseMPSUpgradeCost);
+            localStorage.setItem("multMPSUpgradeCost", multMPSUpgradeCost);
+            localStorage.setItem("joules", joules);
+            localStorage.setItem("joulesPerSecond", joulesPerSecond);
+            localStorage.setItem("jouleUpgradeCost", jouleUpgradeCost);
+            localStorage.setItem("energyUnlocked", energyUnlocked);
+            localStorage.setItem("prestigePoints", prestigePoints);
+            localStorage.setItem("prestigeUnlocked", prestigeUnlocked);
+            localStorage.setItem("prestigeUpg1Bought", prestigeUpg1Bought);
+            localStorage.setItem("prestigeUpg2Bought", prestigeUpg2Bought);
+            localStorage.setItem("prestigeUpg3Bought", prestigeUpg3Bought);
         }
 
-        let antimatter = new Decimal(10);
-        let dimension1 = new Decimal(0);
-        let dimension2 = new Decimal(0);
-        let dimension3 = new Decimal(0);
-        let dimension4 = new Decimal(0);
-        let tickspeedCost = new Decimal(1000);
-        let tickspeedBoost = new Decimal(1);
-        let dimensionBoosts = new Decimal(0);
-        let boostPoints = new Decimal(0);
+        function load(){
+            money = localStorage.getItem("money");
+            baseMPS = localStorage.getItem("baseMPS");
+            multMPS = localStorage.getItem("multMPS");
+            baseMPSUpgradeCost = localStorage.getItem("baseMPSUpgradeCost");
+            multMPSUpgradeCost = localStorage.getItem("multMPSUpgradeCost");
+            joules = localStorage.getItem("joules");
+            joulesPerSecond = localStorage.getItem("joulesPerSecond");
+            jouleUpgradeCost = localStorage.getItem("jouleUpgradeCost");
+            energyUnlocked = localStorage.getItem("energyUnlocked");
+            prestigePoints = localStorage.getItem("prestigePoints");
+            prestigeUnlocked = localStorage.getItem("prestigeUnlocked");
+            prestigeUpg1Bought = localStorage.getItem("prestigeUpg1Bought");
+            prestigeUpg2Bought = localStorage.getItem("prestigeUpg2Bought");
+            prestigeUpg3Bought = localStorage.getItem("prestigeUpg3Bought");
+        }
+        
+        
+        
+        function buyBaseMPSUpgrade() {
+            if (money >= baseMPSUpgradeCost) {
+                money -= baseMPSUpgradeCost;
+                baseMPS += 1;
+                baseMPSUpgradeCost = Math.round(baseMPSUpgradeCost * 1.12);
+                upgrade1Button.textContent = `+1$/sec (Cost: $${formatNumber(baseMPSUpgradeCost)})`;
+                updateDisplay();
+            }
+        }
 
-        let cost1 = new Decimal(10);
-        let cost2 = new Decimal(100);
-        let cost3 = new Decimal(10000);
-        let cost4 = new Decimal(100000000);
-        const factor1 = new Decimal(1.12);
-        const factor2 = new Decimal(1.24);
-        const factor3 = new Decimal(1.40);
-        const factor4 = new Decimal(1.60);
+        function buyMultMPSUpgrade() {
+            if (money >= multMPSUpgradeCost) {
+                money -= multMPSUpgradeCost;
+                multMPS *= 2;
+                multMPSUpgradeCost = Math.round(multMPSUpgradeCost * 2.5);
+                upgrade2Button.textContent = `Multiply $/sec by 2 (Cost: $${formatNumber(multMPSUpgradeCost)})`;
+                updateDisplay();
+            }
+        }
 
-        const boostFactor = new Decimal(2);
-        const tickspeedFactor = new Decimal(4);
-        let exponentUpgradeCost = new Decimal(1e15);
-        let exponentIncrease = new Decimal(3);
+        function unlockEnergy() {
+            if (money >= 30000) {
+                money -= 30000;
+                unlockEnergyButton.classList.add('hidden');
+                energySection.classList.remove('hidden');
+                energyUnlocked = true;
+                updateDisplay();
+            }
+        }
 
-        let lastAntimatter = antimatter;
-        let antimatterPerSecond = new Decimal(0);
+        function buyJouleUpgrade() {
+            if (money >= jouleUpgradeCost) {
+                money -= jouleUpgradeCost;
+                joulesPerSecond += 1;
+                jouleUpgradeCost = Math.round(jouleUpgradeCost * 1.2);
+                jouleUpgradeButton.textContent = `+1 Joule Per Second (Cost: $${formatNumber(jouleUpgradeCost)})`;
+                updateDisplay();
+            }
+        }
 
-        // Ensure game state is loaded before starting the game loop
-        loadProgress();
+        function unlockPrestige() {
+            if (joules >= 30000) {
+                joules -= 30000;
+                prestigeUnlocked = true;
+                unlockPrestigeButton.classList.add('hidden');
+                prestigeSection.classList.remove('hidden');
+                updateDisplay();
+            }
+        }
+
+        function prestige() {
+            const prestigeGain = calculatePrestigePoints(joules);
+            prestigePoints += prestigeGain;
+            joules = 0;
+            energyUnlocked = prestigeUpg1Bought;
+            joulesPerSecond = 0;
+            money = 100 * prestigeUpg2Bought;
+            jouleUpgradeCost = 500;
+            baseMPSUpgradeCost = 20;
+            multMPSUpgradeCost = 300;
+            multMPS = 1;
+            baseMPS = 0;
+            upgrade1Button.textContent = `+1$/sec (Cost: $${formatNumber(baseMPSUpgradeCost)})`;
+            upgrade2Button.textContent = `Multiply $/sec by 2 (Cost: $${formatNumber(multMPSUpgradeCost)})`;
+            jouleUpgradeButton.textContent = `+1 Joule Per Second (Cost: $${formatNumber(jouleUpgradeCost)})`;
+            if (!prestigeUpg1Bought) {unlockEnergyButton.classList.remove('hidden');}
+            if (!prestigeUpg1Bought) {energySection.classList.add('hidden')}
+            updateDisplay();
+        }
+
+        function prestigeUpgrade1() {
+            if(prestigePoints >= 5){
+                prestigePoints -= 5;
+                prestigeUpg1Bought = true;
+                prestigeUpgrade1Button.classList.add('hidden');
+                updateDisplay();
+            }
+        }
+        function prestigeUpgrade2() {
+            if(prestigePoints >= 15){
+                prestigePoints -= 15;
+                prestigeUpg2Bought = true;
+                prestigeUpgrade2Button.classList.add('hidden');
+                updateDisplay();
+            }
+        }
+        function prestigeUpgrade3() {
+            if(prestigePoints >= 50){
+                prestigePoints -= 50;
+                prestigeUpg3Bought = true;
+                prestigeUpgrade3Button.classList.add('hidden');
+                updateDisplay();
+            }
+        }
+
+        function calculatePrestigePoints(joules) {
+            return Math.floor(Math.pow(joules / 30000, 0.6));
+        }
+
+        function getEnergyBoost() {
+            return 1 + Math.sqrt(joules / 100);
+        }
+
+        function getPrestigeBoost() {
+            return 1 + (prestigePoints * 1.4);
+        }
+
+        function formatNumber(num) {
+            return num >= 1e6 ? num.toExponential(3) : Math.round(num).toString();
+        }
+
+        function calculateJoulesNeededForNextPoint(n) {
+            return 30000 * Math.pow(n, 5/3);
+        }
 
         setInterval(() => {
-            let boostMultiplier = Decimal.pow(2, dimensionBoosts);
-            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 1);
-
-            antimatter = antimatter.plus(dimension1.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
-            dimension1 = dimension1.plus(dimension2.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
-            dimension2 = dimension2.plus(dimension3.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
-            dimension3 = dimension3.plus(dimension4.times(tickspeedBoost).times(boostMultiplier).times(totalBoost).div(50));
-
-            document.getElementById("counter").innerHTML = `You have <span class="number">${formatNumber(antimatter)}</span> antimatter`;
-
-            antimatterPerSecond = antimatter.minus(lastAntimatter).times(50);
-            lastAntimatter = antimatter;
-            document.getElementById("am-per-second").textContent = `You are gaining ${formatNumber(antimatterPerSecond)} antimatter per second.`;
-
-            updateDimensionButtons();
+            // Update amounts every 20ms
+            money += (baseMPS * multMPS * getEnergyBoost()) / 50;
+            joules += joulesPerSecond * getPrestigeBoost() / 50;
+            if(prestigeUpg3Bought){
+                prestigePoints += Math.pow(joules / 30000, 0.6) / 50000;
+            }
+            updateDisplay();
         }, 20);
-
-        setInterval(() => {
-            boostPoints = boostPoints.plus(Decimal.pow(dimensionBoosts, exponentIncrease).div(5000));
-            let totalBoost = Decimal.pow(1 + 0.2 * boostPoints, 1);
-            document.getElementById("boost-points").textContent = `You have ${formatNumber(boostPoints)} Boost Points, multiplying all dimensions by ${formatNumber(totalBoost)}×`;
-        }, 20);
-
-        function updateDimensionButtons() {
-            let boostMultiplier = Decimal.pow(2, dimensionBoosts);
-
-            document.getElementById("dimension1").innerHTML = `Dimension 1: ${formatNumber(dimension1)} (Cost: ${formatNumber(cost1)})`;
-            document.getElementById("dimension2").innerHTML = `Dimension 2: ${formatNumber(dimension2)} (Cost: ${formatNumber(cost2)})`;
-            document.getElementById("dimension3").innerHTML = `Dimension 3: ${formatNumber(dimension3)} (Cost: ${formatNumber(cost3)})`;
-            document.getElementById("dimension4").innerHTML = `Dimension 4: ${formatNumber(dimension4)} (Cost: ${formatNumber(cost4)})`;
-
-            document.getElementById("dimension1").classList.toggle("disabled", antimatter.lessThan(cost1));
-            document.getElementById("dimension2").classList.toggle("disabled", antimatter.lessThan(cost2));
-            document.getElementById("dimension3").classList.toggle("disabled", antimatter.lessThan(cost3));
-            document.getElementById("dimension4").classList.toggle("disabled", antimatter.lessThan(cost4));
-
-            document.getElementById("tickspeed-upgrade").innerHTML = `Tickspeed Upgrade (Cost: ${formatNumber(tickspeedCost)} | Boost: ${formatNumber(tickspeedBoost)}×)`;
-            document.getElementById("tickspeed-upgrade").classList.toggle("disabled", antimatter.lessThan(tickspeedCost));
-
-            document.getElementById("dimension-boost").innerHTML = `Dimension Boost: Reset everything for a 2x boost to all dimensions.<br>Requires 20 4th Dimensions<br>Current Boost: ${formatNumber(Decimal.pow(2, dimensionBoosts))}×`;
-            document.getElementById("dimension-boost").classList.toggle("disabled", dimension4.lessThan(boostFactor.times(20)));
-
-            document.getElementById("exponent-upgrade").innerHTML = `Upgrade exponent of BP gain by +0.2 | Cost: ${formatNumber(exponentUpgradeCost)} | Current Exponent: ^${formatNumber(exponentIncrease)}`;
-            document.getElementById("exponent-upgrade").classList.toggle("disabled", antimatter.lessThan(exponentUpgradeCost));
-        }
-
-        function buyTickspeedUpgrade() {
-            if (antimatter.greaterThanOrEqualTo(tickspeedCost)) {
-                antimatter = antimatter.minus(tickspeedCost);
-                tickspeedCost = tickspeedCost.times(tickspeedFactor);
-                tickspeedBoost = tickspeedBoost.times(boostFactor);
-                updateDimensionButtons();
-            }
-        }
-
-        function buyDimensionBoost() {
-            if (dimension4.greaterThanOrEqualTo(boostFactor.times(20))) {
-                antimatter = new Decimal(10);
-                dimension1 = new Decimal(0);
-                dimension2 = new Decimal(0);
-                dimension3 = new Decimal(0);
-                dimension4 = new Decimal(0);
-                cost1 = new Decimal(10);
-                cost2 = new Decimal(100);
-                cost3 = new Decimal(10000);
-                cost4 = new Decimal(100000000);
-                dimensionBoosts = dimensionBoosts.plus(1);
-                boostPoints = boostPoints.plus(Decimal.pow(dimensionBoosts, exponentIncrease).div(5000));
-                updateDimensionButtons();
-            }
-        }
-
-        function buyExponentUpgrade() {
-            if (antimatter.greaterThanOrEqualTo(exponentUpgradeCost)) {
-                antimatter = antimatter.minus(exponentUpgradeCost);
-                exponentIncrease = exponentIncrease.plus(0.2);
-                exponentUpgradeCost = exponentUpgradeCost.times(1e9);
-                updateDimensionButtons();
-            }
-        }
-
-        function buyDimension(dimensionNumber) {
-            if (dimensionNumber === 1 && antimatter.greaterThanOrEqualTo(cost1)) {
-                antimatter = antimatter.minus(cost1);
-                dimension1 = dimension1.plus(1);
-                cost1 = cost1.times(factor1);
-            } else if (dimensionNumber === 2 && antimatter.greaterThanOrEqualTo(cost2)) {
-                antimatter = antimatter.minus(cost2);
-                dimension2 = dimension2.plus(1);
-                cost2 = cost2.times(factor2);
-            } else if (dimensionNumber === 3 && antimatter.greaterThanOrEqualTo(cost3)) {
-                antimatter = antimatter.minus(cost3);
-                dimension3 = dimension3.plus(1);
-                cost3 = cost3.times(factor3);
-            } else if (dimensionNumber === 4 && antimatter.greaterThanOrEqualTo(cost4)) {
-                antimatter = antimatter.minus(cost4);
-                dimension4 = dimension4.plus(1);
-                cost4 = cost4.times(factor4);
-            }
-            updateDimensionButtons();
-        }
-
-        function formatNumber(number) {
-            if (number.greaterThanOrEqualTo(1e6)) {
-                return number.toExponential(2).replace('e+', 'e');
-            } else {
-                return number.toFixed(2);
-            }
-        }
-
-        setInterval(saveProgress, 30000); // Save progress every 30 seconds
     </script>
 </body>
 </html>
