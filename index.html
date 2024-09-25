@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="MonospaceTypewriter.css">
     <title>Money Increment Game</title>
     <style>
         body {
             background-color: #2b2b2b;
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'MonospaceTypewriter', monospace;
             color: white;
             margin: 0;
             padding: 0;
@@ -34,13 +36,14 @@
         }
         button {
             margin-top: 0px;
-            padding: 6px 20px;
+            padding: 2px 20px;
             font-size: 16pt;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-family: 'MonospaceTypewriter', monospace;
         }
         button:hover {
             background-color: #45a049;
@@ -70,12 +73,12 @@
             font-size: 9pt;
         }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <button id="impButton" onclick="importdata()">Import</button>
         <button id="expButton" onclick="exportdata()">Export</button><br>
+        <a href="moneyincrementsavebank.htm">Savebank</a>
         <div class="mps" id="mpsDisplay">0/s</div>
         <div class="counter" id="counter">$0</div>
         <button onclick="incrementCounter()">+1 $</button><br>
@@ -208,6 +211,9 @@
                 const joulesUntilNextPoint = Math.max(0, Math.ceil(joulesNeededForNextPoint - joules));
                 prestigeRequirement.textContent = `${formatNumber(joulesUntilNextPoint)} Joules until next Prestige Point`;
                 prestigeRequirement.classList.remove('hidden');
+                prestigeSection.classList.remove('hidden');
+            } else {
+                prestigeSection.classList.add('hidden');
             }
 
             if (joules >= 30000 && !prestigeUnlocked) {
@@ -219,28 +225,32 @@
         
         function exportdata() {
             const stringified_data = money.toString() + " " + baseMPS.toString() + " " + multMPS.toString() + " " + baseMPSUpgradeCost.toString() + " " + multMPSUpgradeCost.toString() + " " + joules.toString() + " " + joulesPerSecond.toString() + " " + jouleUpgradeCost.toString() + " " + energyUnlocked.toString() + " " + prestigePoints.toString() + " " + prestigeUnlocked.toString() + " " + prestigeUpg1Bought.toString() + " " + prestigeUpg2Bought.toString() + " " + prestigeUpg3Bought.toString(); 
-            alert(stringified_data);
+            navigator.clipboard.writeText(btoa(stringified_data))
+            alert("Copied to clipboard!");
+        
         }
         function importdata() {
-            const pasted = prompt("Paste your save file ");
+            const pasted = atob(prompt("Paste your save file "));
             const pasted_array = pasted.split(' ');
-            money = parseFloat(pasted_array[0])
-            baseMPS = parseFloat(pasted_array[1])
-            multMPS = parseFloat(pasted_array[2])
-            baseMPSUpgradeCost = parseFloat(pasted_array[3])
-            multMPSUpgradeCost = parseFloat(pasted_array[4])
-            joules = parseFloat(pasted_array[5])
-            joulesPerSecond = parseFloat(pasted_array[6])
-            jouleUpgradeCost = parseFloat(pasted_array[7])
-            energyUnlocked = JSON.parse(pasted_array[8])
-            prestigePoints = parseFloat(pasted_array[9])
-            prestigeUnlocked = JSON.parse(pasted_array[10])
-            prestigeUpg1Bought = JSON.parse(pasted_array[11])
-            prestigeUpg2Bought = JSON.parse(pasted_array[12])
-            prestigeUpg3Bought = JSON.parse(pasted_array[13])
-            upgrade1Button.textContent = `+1$/sec (Cost: $${formatNumber(baseMPSUpgradeCost)})`;
-            upgrade2Button.textContent = `Multiply $/sec by 2 (Cost: $${formatNumber(multMPSUpgradeCost)})`;
-            jouleUpgradeButton.textContent = `+1 Joule Per Second (Cost: $${formatNumber(jouleUpgradeCost)})`;
+            if (pasted != null) {
+                money = parseFloat(pasted_array[0])
+                baseMPS = parseFloat(pasted_array[1])
+                multMPS = parseFloat(pasted_array[2])
+                baseMPSUpgradeCost = parseFloat(pasted_array[3])
+                multMPSUpgradeCost = parseFloat(pasted_array[4])
+                joules = parseFloat(pasted_array[5])
+                joulesPerSecond = parseFloat(pasted_array[6])
+                jouleUpgradeCost = parseFloat(pasted_array[7])
+                energyUnlocked = JSON.parse(pasted_array[8])
+                prestigePoints = parseFloat(pasted_array[9])
+                prestigeUnlocked = JSON.parse(pasted_array[10])
+                prestigeUpg1Bought = JSON.parse(pasted_array[11])
+                prestigeUpg2Bought = JSON.parse(pasted_array[12])
+                prestigeUpg3Bought = JSON.parse(pasted_array[13])
+                upgrade1Button.textContent = `+1$/sec (Cost: $${formatNumber(baseMPSUpgradeCost)})`;
+                upgrade2Button.textContent = `Multiply $/sec by 2 (Cost: $${formatNumber(multMPSUpgradeCost)})`;
+                jouleUpgradeButton.textContent = `+1 Joule Per Second (Cost: $${formatNumber(jouleUpgradeCost)})`;
+            }
         }
         
         
