@@ -163,6 +163,7 @@
                     joulesCounter.textContent = `${(joules/1000000000000).toFixed(2)} TJ`
                 } else {
                     joulesCounter.textContent = `${formatNumber(joules/1000000000000)} TJ`
+                }
                 energyMPSDisplay.textContent = `${formatNumber((Math.round(joulesPerSecond * getPrestigeBoost() * 100) / 100).toFixed(2))} J / s`;
                 if (getEnergyBoost() <= 1000000) {
                     energyBoostDisplay.textContent = `Boosting $/s by ${(getEnergyBoost()).toFixed(3)}x`;
