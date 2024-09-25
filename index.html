@@ -74,7 +74,8 @@
 </head>
 <body>
     <div class="container">
-        <button id="saveButton" onclick="save()">Save Game Data!</button><br>
+        <button id="impButton" onclick="importdata()">Import</button><br>
+        <button id="expButton" onclick="exportdata()">Export</button><br>
         <div class="mps" id="mpsDisplay">0/s</div>
         <div class="counter" id="counter">$0</div>
         <button onclick="incrementCounter()">+1 $</button><br>
@@ -118,9 +119,6 @@
         let prestigeUpg1Bought = false;
         let prestigeUpg2Bought = false;
         let prestigeUpg3Bought = false;
-
-        save();
-        load();
 
         const counterElement = document.getElementById('counter');
         const mpsDisplayElement = document.getElementById('mpsDisplay');
@@ -208,44 +206,6 @@
         }
 
         
-        function parseBoolean(str) {
-            return str.toLowerCase() === 'true';
-        }
-        
-        
-        function save(){
-            localStorage.setItem("money", money.toString());
-            localStorage.setItem("baseMPS", baseMPS.toString());
-            localStorage.setItem("multMPS", multMPS.toString());
-            localStorage.setItem("baseMPSUpgradeCost", baseMPSUpgradeCost.toString());
-            localStorage.setItem("multMPSUpgradeCost", multMPSUpgradeCost.toString());
-            localStorage.setItem("joules", joules.toString());
-            localStorage.setItem("joulesPerSecond", joulesPerSecond.toString());
-            localStorage.setItem("jouleUpgradeCost", jouleUpgradeCost.toString());
-            localStorage.setItem("energyUnlocked", energyUnlocked.toString());
-            localStorage.setItem("prestigePoints", prestigePoints.toString());
-            localStorage.setItem("prestigeUnlocked", prestigeUnlocked.toString());
-            localStorage.setItem("prestigeUpg1Bought", prestigeUpg1Bought.toString());
-            localStorage.setItem("prestigeUpg2Bought", prestigeUpg2Bought.toString());
-            localStorage.setItem("prestigeUpg3Bought", prestigeUpg3Bought.toString());
-        }
-
-        function load(){
-            money = Number.parseFloat(localStorage.getItem("money"));
-            baseMPS = Number.parseFloat(localStorage.getItem("baseMPS"));
-            multMPS = Number.parseFloat(localStorage.getItem("multMPS"));
-            baseMPSUpgradeCost = Number.parseFloat(localStorage.getItem("baseMPSUpgradeCost"));
-            multMPSUpgradeCost = Number.parseFloat(localStorage.getItem("multMPSUpgradeCost"));
-            joules = Number.parseFloat(localStorage.getItem("joules"));
-            joulesPerSecond = Number.parseFloat(localStorage.getItem("joulesPerSecond"));
-            jouleUpgradeCost = Number.parseFloat(localStorage.getItem("jouleUpgradeCost"));
-            energyUnlocked = parseBoolean(localStorage.getItem("energyUnlocked"));
-            prestigePoints = Number.parseFloat(localStorage.getItem("prestigePoints"));
-            prestigeUnlocked = parseBoolean(localStorage.getItem("prestigeUnlocked"));
-            prestigeUpg1Bought = parseBoolean(localStorage.getItem("prestigeUpg1Bought"));
-            prestigeUpg2Bought = Boolean.parseBoolean(localStorage.getItem("prestigeUpg2Bought"));
-            prestigeUpg3Bought = parseBoolean(localStorage.getItem("prestigeUpg3Bought"));
-        }
         
         
         
