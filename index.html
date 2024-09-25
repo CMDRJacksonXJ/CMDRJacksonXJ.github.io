@@ -206,6 +206,12 @@
             }
         }
 
+        
+        function parseBoolean(str) {
+            return str.toLowerCase() === 'true';
+}
+        
+        
         function save(){
             localStorage.setItem("money", money.toString());
             localStorage.setItem("baseMPS", baseMPS.toString());
@@ -232,12 +238,12 @@
             joules = Number.parseFloat(localStorage.getItem("joules"));
             joulesPerSecond = Number.parseFloat(localStorage.getItem("joulesPerSecond"));
             jouleUpgradeCost = Number.parseFloat(localStorage.getItem("jouleUpgradeCost"));
-            energyUnlocked = Boolean.parseBoolean(localStorage.getItem("energyUnlocked"));
+            energyUnlocked = parseBoolean(localStorage.getItem("energyUnlocked"));
             prestigePoints = Number.parseFloat(localStorage.getItem("prestigePoints"));
-            prestigeUnlocked = Boolean.parseBoolean(localStorage.getItem("prestigeUnlocked"));
-            prestigeUpg1Bought = Boolean.parseBoolean(localStorage.getItem("prestigeUpg1Bought"));
-            prestigeUpg2Bought = Boolean.parseBoolean(localStorage.getItem("prestigeUpg2Bought"));
-            prestigeUpg3Bought = Boolean.parseBoolean(localStorage.getItem("prestigeUpg3Bought"));
+            prestigeUnlocked = parseBoolean(localStorage.getItem("prestigeUnlocked"));
+            prestigeUpg1Bought = parseBoolean(localStorage.getItem("prestigeUpg1Bought"));
+            prestigeUpg2Bought = parseBoolean(localStorage.getItem("prestigeUpg2Bought"));
+            prestigeUpg3Bought = parseBoolean(localStorage.getItem("prestigeUpg3Bought"));
         }
         
         
