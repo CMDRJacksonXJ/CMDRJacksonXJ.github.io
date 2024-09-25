@@ -151,6 +151,7 @@
 
             if (energyUnlocked) {
                 energySection.classList.remove('hidden');
+                unlockEnergyButton.classList.add('hidden');
                 if (joules < 1000) {
                     joulesCounter.textContent = `${Math.round(joules)} J`;
                 } else if (joules < 1000000) {
