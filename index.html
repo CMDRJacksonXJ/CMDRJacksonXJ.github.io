@@ -179,12 +179,18 @@
                 }
                 if (!prestigeUpg1Bought) {
                     prestigeUpgrade1Button.classList.remove('hidden')
+                } else {
+                    prestigeUpgrade1Button.classList.add('hidden')
                 }
                 if (!prestigeUpg2Bought) {
                     prestigeUpgrade2Button.classList.remove('hidden')
+                } else {
+                    prestigeUpgrade2Button.classList.add('hidden')
                 }
                 if (!prestigeUpg3Bought) {
                     prestigeUpgrade3Button.classList.remove('hidden')
+                } else {
+                    prestigeUpgrade3Button.classList.add('hidden')
                 }
                 if (joules >= 30000) {
                     let prestigePointsGain = calculatePrestigePoints(joules);
