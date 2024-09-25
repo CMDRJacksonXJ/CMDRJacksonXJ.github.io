@@ -1,3 +1,1 @@
-#
-Antimatter Dimensions NG+Boost
-A custom AD mod/fangame
+A cool incremental game i made. not antimatter dimensions anymore
