@@ -207,37 +207,37 @@
         }
 
         function save(){
-            localStorage.setItem("money", money);
-            localStorage.setItem("baseMPS", baseMPS);
-            localStorage.setItem("multMPS", multMPS);
-            localStorage.setItem("baseMPSUpgradeCost", baseMPSUpgradeCost);
-            localStorage.setItem("multMPSUpgradeCost", multMPSUpgradeCost);
-            localStorage.setItem("joules", joules);
-            localStorage.setItem("joulesPerSecond", joulesPerSecond);
-            localStorage.setItem("jouleUpgradeCost", jouleUpgradeCost);
-            localStorage.setItem("energyUnlocked", energyUnlocked);
-            localStorage.setItem("prestigePoints", prestigePoints);
-            localStorage.setItem("prestigeUnlocked", prestigeUnlocked);
-            localStorage.setItem("prestigeUpg1Bought", prestigeUpg1Bought);
-            localStorage.setItem("prestigeUpg2Bought", prestigeUpg2Bought);
-            localStorage.setItem("prestigeUpg3Bought", prestigeUpg3Bought);
+            localStorage.setItem("money", money.toString());
+            localStorage.setItem("baseMPS", baseMPS.toString());
+            localStorage.setItem("multMPS", multMPS.toString());
+            localStorage.setItem("baseMPSUpgradeCost", baseMPSUpgradeCost.toString());
+            localStorage.setItem("multMPSUpgradeCost", multMPSUpgradeCost.toString());
+            localStorage.setItem("joules", joules.toString());
+            localStorage.setItem("joulesPerSecond", joulesPerSecond.toString());
+            localStorage.setItem("jouleUpgradeCost", jouleUpgradeCost.toString());
+            localStorage.setItem("energyUnlocked", energyUnlocked.toString());
+            localStorage.setItem("prestigePoints", prestigePoints.toString());
+            localStorage.setItem("prestigeUnlocked", prestigeUnlocked.toString());
+            localStorage.setItem("prestigeUpg1Bought", prestigeUpg1Bought.toString());
+            localStorage.setItem("prestigeUpg2Bought", prestigeUpg2Bought.toString());
+            localStorage.setItem("prestigeUpg3Bought", prestigeUpg3Bought.toString());
         }
 
         function load(){
-            money = localStorage.getItem("money");
-            baseMPS = localStorage.getItem("baseMPS");
-            multMPS = localStorage.getItem("multMPS");
-            baseMPSUpgradeCost = localStorage.getItem("baseMPSUpgradeCost");
-            multMPSUpgradeCost = localStorage.getItem("multMPSUpgradeCost");
-            joules = localStorage.getItem("joules");
-            joulesPerSecond = localStorage.getItem("joulesPerSecond");
-            jouleUpgradeCost = localStorage.getItem("jouleUpgradeCost");
-            energyUnlocked = localStorage.getItem("energyUnlocked");
-            prestigePoints = localStorage.getItem("prestigePoints");
-            prestigeUnlocked = localStorage.getItem("prestigeUnlocked");
-            prestigeUpg1Bought = localStorage.getItem("prestigeUpg1Bought");
-            prestigeUpg2Bought = localStorage.getItem("prestigeUpg2Bought");
-            prestigeUpg3Bought = localStorage.getItem("prestigeUpg3Bought");
+            money = Number.parseFloat(localStorage.getItem("money"));
+            baseMPS = Number.parseFloat(localStorage.getItem("baseMPS"));
+            multMPS = Number.parseFloat(localStorage.getItem("multMPS"));
+            baseMPSUpgradeCost = Number.parseFloat(localStorage.getItem("baseMPSUpgradeCost"));
+            multMPSUpgradeCost = Number.parseFloat(localStorage.getItem("multMPSUpgradeCost"));
+            joules = Number.parseFloat(localStorage.getItem("joules"));
+            joulesPerSecond = Number.parseFloat(localStorage.getItem("joulesPerSecond"));
+            jouleUpgradeCost = Number.parseFloat(localStorage.getItem("jouleUpgradeCost"));
+            energyUnlocked = Boolean.parseBoolean(localStorage.getItem("energyUnlocked"));
+            prestigePoints = Number.parseFloat(localStorage.getItem("prestigePoints"));
+            prestigeUnlocked = Boolean.parseBoolean(localStorage.getItem("prestigeUnlocked"));
+            prestigeUpg1Bought = Boolean.parseBoolean(localStorage.getItem("prestigeUpg1Bought"));
+            prestigeUpg2Bought = Boolean.parseBoolean(localStorage.getItem("prestigeUpg2Bought"));
+            prestigeUpg3Bought = Boolean.parseBoolean(localStorage.getItem("prestigeUpg3Bought"));
         }
         
         
