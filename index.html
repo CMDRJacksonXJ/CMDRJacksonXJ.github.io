@@ -150,6 +150,7 @@
             mpsDisplayElement.textContent = `${formatNumber(Math.round(baseMPS * multMPS * getEnergyBoost()))}/s`;
 
             if (energyUnlocked) {
+                energySection.classList.remove('hidden');
                 if (joules < 1000) {
                     joulesCounter.textContent = `${Math.round(joules)} J`;
                 } else if (joules < 1000000) {
@@ -205,12 +206,29 @@
             }
         }
 
+        
+        
         function exportdata() {
             const stringified_data = money.toString() + " " + baseMPS.toString() + " " + multMPS.toString() + " " + baseMPSUpgradeCost.toString() + " " + multMPSUpgradeCost.toString() + " " + joules.toString() + " " + joulesPerSecond.toString() + " " + jouleUpgradeCost.toString() + " " + energyUnlocked.toString() + " " + prestigePoints.toString() + " " + prestigeUnlocked.toString() + " " + prestigeUpg1Bought.toString() + " " + prestigeUpg2Bought.toString() + " " + prestigeUpg3Bought.toString(); 
             alert(stringified_data);
         }
         function importdata() {
-            
+            const pasted = prompt("Paste your save file ");
+            const pasted_array = pasted.split(' ');
+            money = parseFloat(pasted_array[0])
+            baseMPS = parseFloat(pasted_array[1])
+            multMPS = parseFloat(pasted_array[2])
+            baseMPSUpgradeCost = parseFloat(pasted_array[3])
+            multMPSUpgradeCost = parseFloat(pasted_array[4])
+            joules = parseFloat(pasted_array[5])
+            joulesPerSecond = parseFloat(pasted_array[6])
+            jouleUpgradeCost = parseFloat(pasted_array[7])
+            energyUnlocked = JSON.parse(pasted_array[8])
+            prestigePoints = parseFloat(pasted_array[9])
+            prestigeUnlocked = JSON.parse(pasted_array[10])
+            prestigeUpg1Bought = JSON.parse(pasted_array[11])
+            prestigeUpg2Bought = JSON.parse(pasted_array[12])
+            prestigeUpg3Bought = JSON.parse(pasted_array[13])
         }
         
         
