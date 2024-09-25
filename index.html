@@ -159,9 +159,10 @@
                     joulesCounter.textContent = `${(joules/1000000).toFixed(2)} MJ`;
                 } else if (joules < 1e12) {
                     joulesCounter.textContent = `${(joules/1000000000).toFixed(2)} GJ`;
-                } else {
+                } else if (joules < 1e15) {
                     joulesCounter.textContent = `${(joules/1000000000000).toFixed(2)} TJ`
-                }
+                } else {
+                    joulesCounter.textContent = `${formatNumber(joules/1000000000000)} TJ`
                 energyMPSDisplay.textContent = `${formatNumber((Math.round(joulesPerSecond * getPrestigeBoost() * 100) / 100).toFixed(2))} J / s`;
                 if (getEnergyBoost() <= 1000000) {
                     energyBoostDisplay.textContent = `Boosting $/s by ${(getEnergyBoost()).toFixed(3)}x`;
@@ -235,6 +236,9 @@
             prestigeUpg1Bought = JSON.parse(pasted_array[11])
             prestigeUpg2Bought = JSON.parse(pasted_array[12])
             prestigeUpg3Bought = JSON.parse(pasted_array[13])
+            upgrade1Button.textContent = `+1$/sec (Cost: $${formatNumber(baseMPSUpgradeCost)})`;
+            upgrade2Button.textContent = `Multiply $/sec by 2 (Cost: $${formatNumber(multMPSUpgradeCost)})`;
+            jouleUpgradeButton.textContent = `+1 Joule Per Second (Cost: $${formatNumber(jouleUpgradeCost)})`;
         }
         
         
