@@ -352,7 +352,13 @@
         }
 
         function formatNumber(num) {
-            return num >= 1e6 ? num.toExponential(3) : Math.round(num).toString();
+            if (num <= 1e6) {
+                return Math.floor(num)
+            }
+            if (num > 1e6) {
+                return (num / Math.pow(10, Math.floor(Math.log10(num)))).toFixed(3) + 'e' + Math.floor(Math.log10(num)).toString()
+            }
+            
         }
 
         function calculateJoulesNeededForNextPoint(n) {
