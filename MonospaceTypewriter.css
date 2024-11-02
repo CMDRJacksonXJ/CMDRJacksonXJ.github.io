@@ -1,9 +1,0 @@
-@font-face {
-    font-family: 'MonospaceTypewriter';
-    src: url('fonts/MonospaceTypewriter.eot');
-    src: url('fonts/MonospaceTypewriter.eot?#iefix') format('embedded-opentype'),
-         url('fonts/MonospaceTypewriter.woff2') format('woff2'),
-         url('fonts/MonospaceTypewriter.woff') format('woff'),
-         url('fonts/MonospaceTypewriter.ttf')  format('truetype'),
-         url('fonts/MonospaceTypewriter.svg#MonospaceTypewriter') format('svg');
-}
