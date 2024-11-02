@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google's Debt to Russia</title>
+    <style>
+        body {
+            background-color: #404040;
+            font-family: Cambria, serif;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 90%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .amount {
+            font-size: calc(4vw + 4vh);
+            font-weight: bold;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>On 10/31/2022, Russia started fining Google a lot of money due to YouTube taking down propaganda involving Russia. The fine was $1,000, and doubled every week. The current amount of money owed is equal to:</p>
+        <div class="amount" id="amount">$0</div>
+    </div>
+
+    <script>
+        function getNumberName(amount) {
+            const numberNames = [
+                { value: 1e63, name: "vigintillion" },
+                { value: 1e60, name: "novemdecillion" },
+                { value: 1e57, name: "octodecillion" },
+                { value: 1e54, name: "septendecillion" },
+                { value: 1e51, name: "sexdecillion" },
+                { value: 1e48, name: "quindecillion" },
+                { value: 1e45, name: "quattuordecillion" },
+                { value: 1e42, name: "tredecillion" },
+                { value: 1e39, name: "duodecillion" },
+                { value: 1e36, name: "undecillion" },
+                { value: 1e33, name: "decillion" },
+                { value: 1e30, name: "nonillion" },
+                { value: 1e27, name: "octillion" },
+                { value: 1e24, name: "septillion" },
+                { value: 1e21, name: "sextillion" },
+                { value: 1e18, name: "quintillion" },
+                { value: 1e15, name: "quadrillion" },
+                { value: 1e12, name: "trillion" },
+                { value: 1e9, name: "billion" },
+                { value: 1e6, name: "million" },
+                { value: 1e3, name: "thousand" },
+                { value: 1, name: "" }
+            ];
+
+            for (const { value, name } of numberNames) {
+                if (amount >= value) {
+                    return { amount: (amount / value).toFixed(3), name };
+                }
+            }
+        }
+
+        function updateAmount() {
+            const startDate = Date.UTC(2022, 9, 31, 0, 0, 0, 0); // October 31, 2022 at 00:00:00.000 UTC
+            const initialFine = 1000;
+
+            const currentDate = new Date();
+            const currentDateUTC = Date.UTC(
+                currentDate.getUTCFullYear(),
+                currentDate.getUTCMonth(),
+                currentDate.getUTCDate(),
+                currentDate.getUTCHours(),
+                currentDate.getUTCMinutes(),
+                currentDate.getUTCSeconds(),
+                currentDate.getUTCMilliseconds()
+            );
+
+            const millisecondsInAWeek = 7 * 24 * 60 * 60 * 1000;
+            const numberOfWeeksSinceStart = (currentDateUTC - startDate) / millisecondsInAWeek;
+
+            const currentAmountOwed = initialFine * Math.pow(2, numberOfWeeksSinceStart);
+            document.getElementById('amount').textContent = `$${currentAmountOwed.toLocaleString('en-US', { maximumFractionDigits: 3 })}`;
+
+            // Get number name and format for title
+            const { amount, name } = getNumberName(currentAmountOwed);
+            document.title = `$${amount} ${name}`;
+        }
+
+        // Update the displayed amount every 20 milliseconds and title every second
+        setInterval(updateAmount, 20);
+        setInterval(() => updateAmount(), 1000);
+    </script>
+</body>
+</html>
