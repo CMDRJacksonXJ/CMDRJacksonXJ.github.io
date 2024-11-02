@@ -17,6 +17,7 @@
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
+            flex-direction: column;
         }
         .container {
             max-width: 90%;
@@ -29,12 +30,18 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
+        .countdown {
+            margin-top: 10px;
+            font-size: 1.5em;
+            color: #CCCCCC;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <p>On 10/31/2022, Russia started fining Google a lot of money due to YouTube taking down propaganda involving Russia. The fine was $1,000, and doubled every week. The current amount of money owed is equal to:</p>
         <div class="amount" id="amount">$0</div>
+        <div class="countdown" id="countdown">Calculating time until next power of ten...</div>
     </div>
 
     <script>
@@ -74,6 +81,7 @@
         function updateAmount() {
             const startDate = Date.UTC(2022, 9, 31, 0, 0, 0, 0); // October 31, 2022 at 00:00:00.000 UTC
             const initialFine = 1000;
+            const millisecondsInAWeek = 7 * 24 * 60 * 60 * 1000;
 
             const currentDate = new Date();
             const currentDateUTC = Date.UTC(
@@ -86,20 +94,43 @@
                 currentDate.getUTCMilliseconds()
             );
 
-            const millisecondsInAWeek = 7 * 24 * 60 * 60 * 1000;
             const numberOfWeeksSinceStart = (currentDateUTC - startDate) / millisecondsInAWeek;
-
             const currentAmountOwed = initialFine * Math.pow(2, numberOfWeeksSinceStart);
             document.getElementById('amount').textContent = `$${currentAmountOwed.toLocaleString('en-US', { maximumFractionDigits: 3 })}`;
 
-            // Get number name and format for title
+            // Update page title
             const { amount, name } = getNumberName(currentAmountOwed);
             document.title = `$${amount} ${name}`;
+
+            // Update countdown timer to next power of ten
+            updateCountdown(currentAmountOwed);
         }
 
-        // Update the displayed amount every 20 milliseconds and title every second
+        function updateCountdown(currentAmountOwed) {
+            const logBase10 = Math.log10(currentAmountOwed);
+            const nextPowerOfTen = Math.pow(10, Math.ceil(logBase10));
+
+            // Calculate factor to next power of ten
+            const factor = nextPowerOfTen / currentAmountOwed;
+            const timeInWeeks = Math.log2(factor);
+            const timeInMilliseconds = timeInWeeks * (7 * 24 * 60 * 60 * 1000);
+
+            // Calculate time components
+            let remainingTime = timeInMilliseconds;
+            const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
+            remainingTime %= (24 * 60 * 60 * 1000);
+            const hours = Math.floor(remainingTime / (60 * 60 * 1000));
+            remainingTime %= (60 * 60 * 1000);
+            const minutes = Math.floor(remainingTime / (60 * 1000));
+            remainingTime %= (60 * 1000);
+            const seconds = (remainingTime / 1000).toFixed(3);
+
+            document.getElementById('countdown').textContent =
+                `${days}d ${hours}h ${minutes}m ${seconds}s until next power of ten`;
+        }
+
+        // Update the displayed amount and title every 20 milliseconds
         setInterval(updateAmount, 20);
-        setInterval(() => updateAmount(), 1000);
     </script>
 </body>
 </html>
