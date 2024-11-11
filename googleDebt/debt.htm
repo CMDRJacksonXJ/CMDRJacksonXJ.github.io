@@ -65,12 +65,12 @@
 
             // Adjust the countdown display based on conditions
             let countdownText;
-            if (timeInMilliseconds > 48 * 60 * 60 * 1000) {
+            if (hours >= 48) {
                 countdownText = `${days} days ${hours} hours until next power of ten`;
-            } else if (timeInMilliseconds > 2 * 60 * 60 * 1000) {
+            } else if (hours >= 2) {
                 minutes += hours * 60; // Convert hours to minutes
                 countdownText = `${minutes} minutes ${Math.floor(seconds)} seconds until next power of ten`;
-            } else if (timeInMilliseconds > 2 * 60 * 1000) {
+            } else if (minutes >= 2) {
                 countdownText = `${minutes} minutes ${Math.floor(seconds)} seconds until next power of ten`;
             } else {
                 countdownText = `${seconds} seconds until next power of ten`;
