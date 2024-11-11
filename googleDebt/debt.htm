@@ -3,106 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google's Debt to Russia</title>
+    <title>Debt Owed by Google</title>
     <style>
         body {
             background-color: #404040;
-            font-family: Cambria, serif;
             color: white;
+            font-family: Cambria, serif;
+            text-align: center;
             margin: 0;
+            padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-            flex-direction: column;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 90%;
+        #currentAmount {
+            width: 90%;
             word-wrap: break-word;
-            overflow-wrap: break-word;
+            font-size: 5vw;
+            white-space: normal;
         }
-        .amount {
-            font-size: calc(4vw + 4vh);
-            font-weight: bold;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-        }
-        .countdown {
-            margin-top: 10px;
+        #countdown {
+            margin-top: 20px;
             font-size: 1.5em;
-            color: #CCCCCC;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <p>On 10/31/2022, Russia started fining Google a lot of money due to YouTube taking down propaganda involving Russia. The fine was $1,000, and doubled every week. The current amount of money owed is equal to:</p>
-        <div class="amount" id="amount">$0</div>
-        <div class="countdown" id="countdown">Calculating time until next power of ten...</div>
-    </div>
+    <div id="description">On 10/31/2022, Russia started fining Google a lot of money due to YouTube taking down propaganda involving Russia. The fine was $1,000, and doubled every week. The current amount of money owed is equal to:</div>
+    <div id="currentAmount">$0</div>
+    <div id="countdown"></div>
 
     <script>
-        function getNumberName(amount) {
-            const numberNames = [
-                { value: 1e63, name: "vigintillion" },
-                { value: 1e60, name: "novemdecillion" },
-                { value: 1e57, name: "octodecillion" },
-                { value: 1e54, name: "septendecillion" },
-                { value: 1e51, name: "sexdecillion" },
-                { value: 1e48, name: "quindecillion" },
-                { value: 1e45, name: "quattuordecillion" },
-                { value: 1e42, name: "tredecillion" },
-                { value: 1e39, name: "duodecillion" },
-                { value: 1e36, name: "undecillion" },
-                { value: 1e33, name: "decillion" },
-                { value: 1e30, name: "nonillion" },
-                { value: 1e27, name: "octillion" },
-                { value: 1e24, name: "septillion" },
-                { value: 1e21, name: "sextillion" },
-                { value: 1e18, name: "quintillion" },
-                { value: 1e15, name: "quadrillion" },
-                { value: 1e12, name: "trillion" },
-                { value: 1e9, name: "billion" },
-                { value: 1e6, name: "million" },
-                { value: 1e3, name: "thousand" },
-                { value: 1, name: "" }
-            ];
-
-            for (const { value, name } of numberNames) {
-                if (amount >= value) {
-                    return { amount: (amount / value).toFixed(3), name };
-                }
-            }
+        function calculateAmountOwed() {
+            const startDate = new Date(Date.UTC(2022, 9, 31)); // 10/31/2022 in UTC
+            const now = new Date();
+            const millisecondsInWeek = 7 * 24 * 60 * 60 * 1000;
+            const elapsedMilliseconds = now - startDate;
+            const elapsedWeeks = elapsedMilliseconds / millisecondsInWeek;
+            const amountOwed = 1000 * Math.pow(2, elapsedWeeks);
+            return amountOwed;
         }
 
-        function updateAmount() {
-            const startDate = Date.UTC(2022, 9, 31, 0, 0, 0, 0); // October 31, 2022 at 00:00:00.000 UTC
-            const initialFine = 1000;
-            const millisecondsInAWeek = 7 * 24 * 60 * 60 * 1000;
+        function formatAmount(amount) {
+            const formatted = amount.toLocaleString('en-US', { maximumFractionDigits: 3 });
+            return `$${formatted}`;
+        }
 
-            const currentDate = new Date();
-            const currentDateUTC = Date.UTC(
-                currentDate.getUTCFullYear(),
-                currentDate.getUTCMonth(),
-                currentDate.getUTCDate(),
-                currentDate.getUTCHours(),
-                currentDate.getUTCMinutes(),
-                currentDate.getUTCSeconds(),
-                currentDate.getUTCMilliseconds()
-            );
+        function updateAmountDisplay() {
+            const currentAmountOwed = calculateAmountOwed();
+            document.getElementById('currentAmount').textContent = formatAmount(currentAmountOwed);
 
-            const numberOfWeeksSinceStart = (currentDateUTC - startDate) / millisecondsInAWeek;
-            const currentAmountOwed = initialFine * Math.pow(2, numberOfWeeksSinceStart);
-            document.getElementById('amount').textContent = `$${currentAmountOwed.toLocaleString('en-US', { maximumFractionDigits: 3 })}`;
+            // Update the document title
+            const magnitude = Math.floor(Math.log10(currentAmountOwed));
+            const scaleNames = [
+                'thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion',
+                'sextillion', 'septillion', 'octillion', 'nonillion', 'decillion',
+                'undecillion', 'duodecillion', 'tredecillion', 'quattuordecillion',
+                'quindecillion', 'sexdecillion', 'septendecillion', 'octodecillion',
+                'novemdecillion', 'vigintillion'
+            ];
+            const scaleIndex = Math.floor(magnitude / 3) - 1;
+            const scaleName = scaleIndex >= 0 ? scaleNames[scaleIndex] : '';
+            const scaledAmount = (currentAmountOwed / Math.pow(10, (scaleIndex + 1) * 3)).toFixed(3);
+            document.title = `$${scaledAmount} ${scaleName}`;
 
-            // Update page title
-            const { amount, name } = getNumberName(currentAmountOwed);
-            document.title = `$${amount} ${name}`;
-
-            // Update countdown timer to next power of ten
             updateCountdown(currentAmountOwed);
         }
 
@@ -125,12 +91,22 @@
             remainingTime %= (60 * 1000);
             const seconds = (remainingTime / 1000).toFixed(3);
 
-            document.getElementById('countdown').textContent =
-                `${days}d ${hours}h ${minutes}m ${seconds}s until next power of ten`;
+            let countdownText;
+            if (timeInMilliseconds > 48 * 60 * 60 * 1000) {
+                countdownText = `${days} days ${hours} hours until next power of ten`;
+            } else if (timeInMilliseconds > 2 * 60 * 60 * 1000) {
+                countdownText = `${hours} hours ${minutes} minutes until next power of ten`;
+            } else if (timeInMilliseconds > 2 * 60 * 1000) {
+                countdownText = `${minutes} minutes ${Math.floor(seconds)} seconds until next power of ten`;
+            } else {
+                countdownText = `${seconds} seconds until next power of ten`;
+            }
+
+            document.getElementById('countdown').textContent = countdownText;
         }
 
-        // Update the displayed amount and title every 20 milliseconds
-        setInterval(updateAmount, 20);
+        // Update display every 20 milliseconds
+        setInterval(updateAmountDisplay, 20);
     </script>
 </body>
 </html>
