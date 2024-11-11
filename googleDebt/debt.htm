@@ -3,83 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google's Current Debt to Russia</title>
+    <title>Google's Debt to Russia</title>
     <style>
         body {
             background-color: #404040;
-            color: white;
             font-family: Cambria, serif;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-direction: column;
         }
-        #currentAmount {
-            white-space: normal;
+        .container {
+            max-width: 90%;
             word-wrap: break-word;
-            font-size: 6vw;
+            overflow-wrap: break-word;
         }
-        #countdown {
-            margin-top: 20px;
-            font-size: 2vw;
+        .amount {
+            font-size: calc(4vw + 4vh);
+            font-weight: bold;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .countdown {
+            margin-top: 10px;
+            font-size: 1.5em;
+            color: #CCCCCC;
         }
     </style>
 </head>
 <body>
-    <h1>On 10/31/2022, Russia started fining Google a lot of money due to YouTube taking down propaganda involving Russia. The fine was $1,000, and doubled every week. The current amount of money owed is equal to:</h1>
-    <div id="currentAmount"></div>
-    <div id="countdown"></div>
+    <div class="container">
+        <p>On 10/31/2022, Russia started fining Google a lot of money due to YouTube taking down propaganda involving Russia. The fine was $1,000, and doubled every week. The current amount of money owed is equal to:</p>
+        <div class="amount" id="amount">$0</div>
+        <div class="countdown" id="countdown">Calculating time until next power of ten...</div>
+    </div>
 
     <script>
-        function calculateDebt() {
-            const startDate = new Date(Date.UTC(2022, 9, 31)); // October 31, 2022, in UTC
-            const now = new Date();
-            const millisecondsSinceStart = now - startDate;
-            const weeksSinceStart = millisecondsSinceStart / (1000 * 60 * 60 * 24 * 7);
-            const currentAmountOwed = 1000 * Math.pow(2, weeksSinceStart);
+        function getNumberName(amount) {
+            const numberNames = [
+                { value: 1e63, name: "vigintillion" },
+                { value: 1e60, name: "novemdecillion" },
+                { value: 1e57, name: "octodecillion" },
+                { value: 1e54, name: "septendecillion" },
+                { value: 1e51, name: "sexdecillion" },
+                { value: 1e48, name: "quindecillion" },
+                { value: 1e45, name: "quattuordecillion" },
+                { value: 1e42, name: "tredecillion" },
+                { value: 1e39, name: "duodecillion" },
+                { value: 1e36, name: "undecillion" },
+                { value: 1e33, name: "decillion" },
+                { value: 1e30, name: "nonillion" },
+                { value: 1e27, name: "octillion" },
+                { value: 1e24, name: "septillion" },
+                { value: 1e21, name: "sextillion" },
+                { value: 1e18, name: "quintillion" },
+                { value: 1e15, name: "quadrillion" },
+                { value: 1e12, name: "trillion" },
+                { value: 1e9, name: "billion" },
+                { value: 1e6, name: "million" },
+                { value: 1e3, name: "thousand" },
+                { value: 1, name: "" }
+            ];
 
-            // Format the amount with commas
-            const formattedAmount = `$${currentAmountOwed.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-            document.getElementById('currentAmount').textContent = formattedAmount;
-
-            // Update the page title every second
-            const numberNames = ["thousand", "million", "billion", "trillion", "quadrillion", "quintillion", "sextillion", "septillion", "octillion", "nonillion", "decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion", "quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion", "vigintillion"];
-            const logBase10 = Math.log10(currentAmountOwed);
-            const powerIndex = Math.floor(logBase10 / 3) - 1;
-            if (powerIndex >= 0 && powerIndex < numberNames.length) {
-                const value = (currentAmountOwed / Math.pow(10, (powerIndex + 1) * 3)).toFixed(3);
-                document.title = `$${value} ${numberNames[powerIndex]}`;
+            for (const { value, name } of numberNames) {
+                if (amount >= value) {
+                    return { amount: (amount / value).toFixed(3), name };
+                }
             }
+        }
 
-            // Countdown to the next power of ten
+        function updateAmount() {
+            const startDate = Date.UTC(2022, 9, 31, 0, 0, 0, 0); // October 31, 2022 at 00:00:00.000 UTC
+            const initialFine = 1000;
+            const millisecondsInAWeek = 7 * 24 * 60 * 60 * 1000;
+
+            const currentDate = new Date();
+            const currentDateUTC = Date.UTC(
+                currentDate.getUTCFullYear(),
+                currentDate.getUTCMonth(),
+                currentDate.getUTCDate(),
+                currentDate.getUTCHours(),
+                currentDate.getUTCMinutes(),
+                currentDate.getUTCSeconds(),
+                currentDate.getUTCMilliseconds()
+            );
+
+            const numberOfWeeksSinceStart = (currentDateUTC - startDate) / millisecondsInAWeek;
+            const currentAmountOwed = initialFine * Math.pow(2, numberOfWeeksSinceStart);
+            document.getElementById('amount').textContent = `$${currentAmountOwed.toLocaleString('en-US', { maximumFractionDigits: 3 })}`;
+
+            // Update page title
+            const { amount, name } = getNumberName(currentAmountOwed);
+            document.title = `$${amount} ${name}`;
+
+            // Update countdown timer to next power of ten
+            updateCountdown(currentAmountOwed);
+        }
+
+        function updateCountdown(currentAmountOwed) {
+            const logBase10 = Math.log10(currentAmountOwed);
             const nextPowerOfTen = Math.pow(10, Math.ceil(logBase10));
+
+            // Calculate factor to next power of ten
             const factor = nextPowerOfTen / currentAmountOwed;
             const timeInWeeks = Math.log2(factor);
             const timeInMilliseconds = timeInWeeks * (7 * 24 * 60 * 60 * 1000);
+
+            // Calculate time components
             let remainingTime = timeInMilliseconds;
-
-            let days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
+            const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
             remainingTime %= (24 * 60 * 60 * 1000);
-            let hours = Math.floor(remainingTime / (60 * 60 * 1000));
+            const hours = Math.floor(remainingTime / (60 * 60 * 1000));
             remainingTime %= (60 * 60 * 1000);
-            let minutes = Math.floor(remainingTime / (60 * 1000));
+            const minutes = Math.floor(remainingTime / (60 * 1000));
             remainingTime %= (60 * 1000);
-            let seconds = (remainingTime / 1000).toFixed(3);
+            const seconds = (remainingTime / 1000).toFixed(3);
 
-            // Adjust the countdown display based on conditions
-            let countdownText;
-            if (hours >= 48) {
-                countdownText = `${days} days ${hours} hours until next power of ten`;
-            } else if (hours >= 2) {
-                minutes += hours * 60; // Convert hours to minutes
-                countdownText = `${minutes} minutes ${Math.floor(seconds)} seconds until next power of ten`;
-            } else if (minutes >= 2) {
-                countdownText = `${minutes} minutes ${Math.floor(seconds)} seconds until next power of ten`;
-            } else {
-                countdownText = `${seconds} seconds until next power of ten`;
-            }
-
-            document.getElementById('countdown').textContent = countdownText;
+            document.getElementById('countdown').textContent =
+                `${days}d ${hours}h ${minutes}m ${seconds}s until next power of ten`;
         }
 
-        setInterval(calculateDebt, 20); // Update every 20 milliseconds
+        // Update the displayed amount and title every 20 milliseconds
+        setInterval(updateAmount, 20);
     </script>
 </body>
 </html>
