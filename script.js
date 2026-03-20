@@ -113,10 +113,10 @@ function game() {
     } else {
         multiplierPerSecond = (0.001 + (0.001 * multUpgrade1Bought)) * EU1multiplier;
     }
-    points += pointsPerSecond * 50;
+    points += pointsPerSecond / 50;
 
     if (upgradeUnlockMultiplierBought) {
-        multiplier += multiplierPerSecond * 50;
+        multiplier += multiplierPerSecond / 50;
     }
 
     if (points > 10000000000) {
