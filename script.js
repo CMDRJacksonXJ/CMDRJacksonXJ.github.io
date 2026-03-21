@@ -128,14 +128,26 @@ function game() {
     pointsButton.textContent = "+" + formatNumber(pointsPerClick, 2) + " points";
     upgrade1Button.textContent = "[B1] +1 base points per click - cost: " + formatNumber(upgrade1Cost, 2);
     upgrade2Button.textContent = "[B2] +50% of your click in points every second - cost: " + formatNumber(upgrade2Cost, 2);
-    upgrade3Button.textContent = "[B3] double total point gain - cost: " + formatNumber(upgrade3Cost, 2);
+    if (upgrade3Bought < 10) {
+        upgrade3Button.textContent = "[B3] (" + upgrade3Bought + " / 10) double total point gain - cost: " + formatNumber(upgrade3Cost, 2);
+        upgrade3Button.style.backgroundColor = 'lightblue';
+    } else {
+        upgrade3Button.textContent = "[B3] (10 / 10) double total point gain - maxed!";
+        upgrade3Button.style.backgroundColor = 'lightseagreen';
+    }
     multiplierText.textContent = "multiplier: " + formatNumber(multiplier, 3) + "×";
     passiveMultText.textContent = "per second: +" + formatNumber(multiplierPerSecond, 3) + "×";
     multUpgrade1Button.textContent = "[M1] +0.001× per second - cost: " + formatNumber(multUpgrade1Cost, 2);
     electronText.textContent = "electrons: " + formatNumber(electrons, 2);
     electronBoostText.textContent = "currently boosting points by " + formatNumber(calculateElectronBoost(electrons), 3) + "×";
     resetButton.textContent = "reset all progress so far for " + formatNumber(calculateElectronGain(points, multiplier, electronUpgrade5Bought), 2) + " electrons";
-    electronUpgrade4Button.textContent = "[E4] 1.5× total point gain - cost: " + formatNumber(electronUpgrade4Cost, 2) + " e";
+    if (electronUpgrade4Bought < 12) {
+        electronUpgrade4Button.textContent = "[E4] (" + electronUpgrade4Bought + " / 12) 1.5× total point gain - cost: " + formatNumber(electronUpgrade4Cost, 2) + " e";
+        electronUpgrade4Button.style.backgroundColor = 'magenta';
+    } else {
+        electronUpgrade4Button.textContent = "[E4] (12 / 12) 1.5× total point gain - maxed!";
+        electronUpgrade4Button.style.backgroundColor = 'purple';
+    }
     if (electronUpgrade5Bought < 5) {
         electronUpgrade5Button.textContent = "[E5] (" + electronUpgrade5Bought + " / 5) improve the prestige formula - cost: " + formatNumber(electronUpgrade5Cost, 2) + " e";
         electronUpgrade5Button.style.backgroundColor = 'magenta';
@@ -228,7 +240,7 @@ function upgrade2Buy() {
 }
 
 function upgrade3Buy() {
-    if (points >= upgrade3Cost) {
+    if (points >= upgrade3Cost && upgrade3Bought < 10) {
         points -= upgrade3Cost;
         upgrade3Cost *= 7;
         upgrade3Bought++;
@@ -301,7 +313,7 @@ function electronUpgrade3Buy() {
 }
 
 function electronUpgrade4Buy() {
-    if (electrons >= electronUpgrade4Cost) {
+    if (electrons >= electronUpgrade4Cost && electronUpgrade4Bought < 12) {
         electrons -= electronUpgrade4Cost;
         electronUpgrade4Cost *= 1.7;
         electronUpgrade4Bought++;

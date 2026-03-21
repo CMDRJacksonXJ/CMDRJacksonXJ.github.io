@@ -1,0 +1,9 @@
+v0.0.2 - 2026.03.20:
+- fixed some typos
++ added a limit of 10 to [B3], added a limit of 12 to [E4]
+
+v0.0.1 - 2026.03.19:
+- 5 minutes after launch, emergency patch to remove certain debug code that would give thousands of times more points and multiplier than intended
+
+v0.0.1-B - 2026.03.19:
++ game released
