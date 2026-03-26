@@ -1,3 +1,8 @@
+v0.0.3 - 2026.03.25:
+! sorry for the long hiatus, school
+! new feature planned for next update
++ added upgrade [EX] to electron section
+
 v0.0.2 - 2026.03.20:
 - fixed some typos
 + added a limit of 10 to [B3], added a limit of 12 to [E4]

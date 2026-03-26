@@ -1,6 +1,6 @@
 ﻿// This is a game about gaining a lot of points. Really quickly.
 // As is right now, pretty horribly optimized in code space.
-// let totalHoursSpentDeveloping = 7;
+// let totalHoursSpentDeveloping = 7.5;
 
 // Define game variables
 
@@ -13,6 +13,7 @@ let upgrade2Cost = 500;
 let upgrade2Bought = 0;
 let upgrade3Cost = 1000000;
 let upgrade3Bought = 0;
+let upgrade3Cap = 10;
 let multUpgrade1Cost = 100000;
 let multUpgrade1Bought = 0;
 let upgradeUnlockMultiplierBought = false;
@@ -27,10 +28,13 @@ let electrons = 0;
 let electronUpgradeTripler = false;
 let electronUpgradeM2Improvement = false;
 let electronUpgradePersistence = false;
+let electronUpgradeAutomation = false;
 let electronUpgrade4Cost = 10;
 let electronUpgrade4Bought = 0;
+let electronUpgrade4Cap = 12;
 let electronUpgrade5Cost = 50;
 let electronUpgrade5Bought = 0;
+let electronUpgrade5Cap = 5;
 let electronPrestiged = false;
 
 // Define HTML elements
@@ -54,6 +58,7 @@ const electronUpgrade2Button = document.getElementById("electronUpgrade2Button")
 const electronUpgrade3Button = document.getElementById("electronUpgrade3Button");
 const electronUpgrade4Button = document.getElementById("electronUpgrade4Button");
 const electronUpgrade5Button = document.getElementById("electronUpgrade5Button");
+const electronUpgradeXButton = document.getElementById("electronUpgradeXButton");
 
 const prestigeContainer1 = document.getElementById("prestige-base");
 const prestigeContainer2 = document.getElementById("prestige-upgrades");
@@ -119,6 +124,10 @@ function game() {
         multiplier += multiplierPerSecond / 50;
     }
 
+    if (electronUpgradeAutomation) {
+        electrons += calculateElectronGain(points, multiplier, electronUpgrade5Bought) / 50000;
+    }
+
     if (points > 10000000000) {
         prestigeUnlockThresholdReached = true;
     }
@@ -128,7 +137,7 @@ function game() {
     pointsButton.textContent = "+" + formatNumber(pointsPerClick, 2) + " points";
     upgrade1Button.textContent = "[B1] +1 base points per click - cost: " + formatNumber(upgrade1Cost, 2);
     upgrade2Button.textContent = "[B2] +50% of your click in points every second - cost: " + formatNumber(upgrade2Cost, 2);
-    if (upgrade3Bought < 10) {
+    if (upgrade3Bought < upgrade3Cap) {
         upgrade3Button.textContent = "[B3] (" + upgrade3Bought + " / 10) double total point gain - cost: " + formatNumber(upgrade3Cost, 2);
         upgrade3Button.style.backgroundColor = 'lightblue';
     } else {
@@ -141,18 +150,19 @@ function game() {
     electronText.textContent = "electrons: " + formatNumber(electrons, 2);
     electronBoostText.textContent = "currently boosting points by " + formatNumber(calculateElectronBoost(electrons), 3) + "×";
     resetButton.textContent = "reset all progress so far for " + formatNumber(calculateElectronGain(points, multiplier, electronUpgrade5Bought), 2) + " electrons";
-    if (electronUpgrade4Bought < 12) {
-        electronUpgrade4Button.textContent = "[E4] (" + electronUpgrade4Bought + " / 12) 1.5× total point gain - cost: " + formatNumber(electronUpgrade4Cost, 2) + " e";
+
+    if (electronUpgrade4Bought < electronUpgrade4Cap) {
+        electronUpgrade4Button.textContent = "[E4] (" + electronUpgrade4Bought + " / " + electronUpgrade4Cap + ") 1.5× total point gain - cost: " + formatNumber(electronUpgrade4Cost, 2) + " e";
         electronUpgrade4Button.style.backgroundColor = 'magenta';
     } else {
-        electronUpgrade4Button.textContent = "[E4] (12 / 12) 1.5× total point gain - maxed!";
+        electronUpgrade4Button.textContent = "[E4] (" + electronUpgrade4Bought + " / " + electronUpgrade4Cap + ") 1.5× total point gain - maxed!";
         electronUpgrade4Button.style.backgroundColor = 'purple';
     }
-    if (electronUpgrade5Bought < 5) {
-        electronUpgrade5Button.textContent = "[E5] (" + electronUpgrade5Bought + " / 5) improve the prestige formula - cost: " + formatNumber(electronUpgrade5Cost, 2) + " e";
+    if (electronUpgrade5Bought < electronUpgrade5Cap) {
+        electronUpgrade5Button.textContent = "[E5] (" + electronUpgrade5Bought + " / " + electronUpgrade5Cap + ") improve the prestige formula - cost: " + formatNumber(electronUpgrade5Cost, 2) + " e";
         electronUpgrade5Button.style.backgroundColor = 'magenta';
     } else {
-        electronUpgrade5Button.textContent = "[E5] (5 / 5) improve the prestige formula - maxed!";
+        electronUpgrade5Button.textContent = "[E5] (" + electronUpgrade5Bought + " / " + electronUpgrade5Cap + ") improve the prestige formula - maxed!";
         electronUpgrade5Button.style.backgroundColor = 'purple';
     }
 
@@ -217,6 +227,11 @@ function game() {
     } else {
         electronUpgrade3Button.style.display = 'block';
     }
+    if ((electronUpgrade4Bought != 12 || electronUpgrade5Bought != 5) || electronUpgradeAutomation) {
+        electronUpgradeXButton.style.display = 'none';
+    } else {
+        electronUpgradeXButton.style.display = 'block';
+    }
 }
 
 function gainPoint() {
@@ -240,7 +255,7 @@ function upgrade2Buy() {
 }
 
 function upgrade3Buy() {
-    if (points >= upgrade3Cost && upgrade3Bought < 10) {
+    if (points >= upgrade3Cost && upgrade3Bought < upgrade3Cap) {
         points -= upgrade3Cost;
         upgrade3Cost *= 7;
         upgrade3Bought++;
@@ -313,7 +328,7 @@ function electronUpgrade3Buy() {
 }
 
 function electronUpgrade4Buy() {
-    if (electrons >= electronUpgrade4Cost && electronUpgrade4Bought < 12) {
+    if (electrons >= electronUpgrade4Cost && electronUpgrade4Bought < electronUpgrade4Cap) {
         electrons -= electronUpgrade4Cost;
         electronUpgrade4Cost *= 1.7;
         electronUpgrade4Bought++;
@@ -321,9 +336,16 @@ function electronUpgrade4Buy() {
 }
 
 function electronUpgrade5Buy() {
-    if (electrons >= electronUpgrade5Cost && electronUpgrade5Bought < 5) {
+    if (electrons >= electronUpgrade5Cost && electronUpgrade5Bought < electronUpgrade5Cap) {
         electrons -= electronUpgrade5Cost;
         electronUpgrade5Cost *= 2.5;
         electronUpgrade5Bought++;
+    }
+}
+
+function electronUpgradeXBuy() {
+    if (electrons >= 16000) {
+        electrons -= 16000;
+        electronUpgradeAutomation = true;
     }
 }
