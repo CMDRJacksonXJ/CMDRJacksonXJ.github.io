@@ -1,7 +1,13 @@
+v0.1.2 - 2026.07.06:
++ added upgrade [EA], also known as automation upgrade
++ added notes to every section saying when the next upgrade/feature will be unlocked
+- nerfed the initial rank requirement from 1 billion to 200 million
++ added a little warning that shows up before your first electron reset reading that it is recommended to reset for 10 or more on your first go
+
 v0.1.1 - 2026.07.06:
 + added saving as per oversight's recommendation
 
-v0.1.0 - 2026.07.05:
+v0.1.0 - 2026.07.05 - the ranking update:
 ! well... it's been a while, hasn't it?
 + added an ENTIRE NEW FEATURE, ranks
 + added boosts from ranks

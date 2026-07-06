@@ -1,7 +1,7 @@
 ﻿// This is a game about gaining a lot of points. Really quickly.
 // As is right now, pretty horribly optimized. Ah, whatever. Let's hope it doesn't bite me in the ass later.
 // Dev note: it bit me in the ass later. I now have to put all of the variables in a JSON and rewrite a good chunk of the game...
-// let totalHoursSpentDeveloping = 12.5;
+// let totalHoursSpentDeveloping = 14.5;
 // if anyone sees this, thanks to galaxy's Oversight committee for helping me identify what was wrong in the game
 
 // Define game variables
@@ -29,6 +29,8 @@ gameState = {
     electronUpgradeM2Improvement: false,
     electronUpgradePersistence: false,
     electronUpgradeAutomation: false,
+    electronUpgradeUpgradeAutomation: false,
+    electronUpgradeUpgradeAutomationEnabled: false,
     electronUpgrade4Cost: 10,
     electronUpgrade4Bought: 0,
     electronUpgrade4Cap: 12,
@@ -41,12 +43,14 @@ gameState = {
     rank: 0,
     sacrificedElectrons: 0,
     progress: 0,
-    progressRequirement: 1000000000,
+    progressRequirement: 200000000,
     multUpgrade1BoughtEver: 0,
     upgrade3BoughtEver: 0,
     timeSinceLastElectronReset: 0,
     timeSinceLastUpgradeOrReset: 0
 };
+
+let ticks = 0;
 
 // Define HTML elements
 
@@ -64,9 +68,11 @@ const multUpgrade2Button = document.getElementById("multUpgrade2Button");
 const electronText = document.getElementById("electrons-text");
 const electronBoostText = document.getElementById("electrons-boost-text");
 const resetButton = document.getElementById("resetButton");
+const electronWarningText = document.getElementById("electron-warning");
 const electronUpgrade1Button = document.getElementById("electronUpgrade1Button");
 const electronUpgrade2Button = document.getElementById("electronUpgrade2Button");
 const electronUpgrade3Button = document.getElementById("electronUpgrade3Button");
+const electronUpgradeAButton = document.getElementById("electronUpgradeAButton");
 const electronUpgrade4Button = document.getElementById("electronUpgrade4Button");
 const electronUpgrade5Button = document.getElementById("electronUpgrade5Button");
 const electronUpgradeXButton = document.getElementById("electronUpgradeXButton");
@@ -82,6 +88,10 @@ const rankBoostText1 = document.getElementById("rank-boost-text1");
 const rankBoostText2 = document.getElementById("rank-boost-text2");
 const rankBoostText3 = document.getElementById("rank-boost-text3");
 const rankBoostText4 = document.getElementById("rank-boost-text4");
+
+const unlocksTextPoints = document.getElementById("unlocks-points");
+const unlocksTextMulti = document.getElementById("unlocks-multiplier");
+const unlocksTextElectrons = document.getElementById("unlocks-electrons");
 
 let savedData = localStorage.getItem('IGAGMPSave');
 
@@ -159,6 +169,16 @@ function game() {
 
     gameState.timeSinceLastElectronReset += 0.02;
     gameState.timeSinceLastUpgradeOrReset += 0.02;
+    ticks += 1;
+
+    if (gameState.electronUpgradeUpgradeAutomation && gameState.electronUpgradeUpgradeAutomationEnabled && ticks % 5 == 0) {
+        upgrade1Buy();
+        upgrade2Buy();
+        upgrade3Buy();
+        multUnlockBuy();
+        multUpgrade1Buy();
+        multUpgrade2Buy();
+    }
 
     if (gameState.upgradeUnlockMultiplierBought) {
         gameState.multiplier += gameState.multiplierPerSecond / 50;
@@ -168,11 +188,11 @@ function game() {
         gameState.electrons += Math.pow(calculateElectronGain(gameState.points, gameState.multiplier, gameState.electronUpgrade5Bought) / 1000, Math.min(1 + (gameState.rank * 0.00000004 * gameState.timeSinceLastUpgradeOrReset), 1.6)) / 50;
     }
 
-    if (gameState.points > 10000000000) {
+    if (gameState.points > 10000000000 && gameState.multUpgradePointBoostBought) {
         gameState.prestigeUnlockThresholdReached = true;
     }
 
-    if (gameState.electrons > 100000) {
+    if (gameState.electrons > 100000 && gameState.electronUpgradeAutomation) {
         gameState.ranksUnlocked = true;
     }
 
@@ -181,12 +201,21 @@ function game() {
         if (gameState.progress > gameState.progressRequirement) {
             gameState.progress -= gameState.progressRequirement;
             gameState.rank++;
-            gameState.progressRequirement = 1000000000 * (1 + Math.pow(gameState.rank, (3 + (Math.min(gameState.rank, 300) / 15))));
+            gameState.progressRequirement = 200000000 * (1 + Math.pow(gameState.rank, (3 + (Math.min(gameState.rank, 300) / 15))));
         }
     }
 
     pointsText.textContent = "points: " + formatNumber(gameState.points, 2);
     passiveText.textContent = "per second: " + formatNumber(gameState.pointsPerSecond, 2);
+    if (gameState.upgrade1Bought < 10) {
+        unlocksTextPoints.textContent = "next upgrade at 10 purchases of [B1]";
+    } else if (gameState.pointsPerSecond < 500) {
+        unlocksTextPoints.textContent = "next feature at 500 points per second";
+    } else if (gameState.multUpgrade1Bought < 15) {
+        unlocksTextPoints.textContent = "next upgrade at 15 purchases of [M1]";
+    } else {
+        unlocksTextPoints.textContent = "all stage 1a features unlocked";
+    }
     pointsButton.textContent = "+" + formatNumber(gameState.pointsPerClick, 2) + " points";
     upgrade1Button.textContent = "[B1] +1 base points per click - cost: " + formatNumber(gameState.upgrade1Cost, 2);
     upgrade2Button.textContent = "[B2] +50% of your click in points every second - cost: " + formatNumber(gameState.upgrade2Cost, 2);
@@ -199,11 +228,33 @@ function game() {
     }
     multiplierText.textContent = "multiplier: " + formatNumber(gameState.multiplier, 3) + "×";
     passiveMultText.textContent = "per second: +" + formatNumber(gameState.multiplierPerSecond, 3) + "×";
+    if (gameState.multiplier < 5) {
+        unlocksTextMulti.textContent = "next upgrade at 5.000× multiplier";
+    } else if (gameState.points < 10000000000 || !gameState.multUpgradePointBoostBought) {
+        unlocksTextMulti.textContent = "next feature at 10.000 billion points and after buying [M2]";
+    } else {
+        unlocksTextMulti.textContent = "all stage 1b features unlocked";
+    }
     multUpgrade1Button.textContent = "[M1] +0.001× per second - cost: " + formatNumber(gameState.multUpgrade1Cost, 2);
     electronText.textContent = "electrons: " + formatNumber(gameState.electrons, 2);
     electronBoostText.textContent = "currently boosting points by " + formatNumber(calculateElectronBoost(gameState.electrons), 3) + "×";
+    if ((gameState.electronUpgrade4Bought != gameState.electronUpgrade4Cap || gameState.electronUpgrade5Bought != gameState.electronUpgrade5Cap)) {
+        unlocksTextElectrons.textContent = "next upgrade after maxing out [E4] and [E5]";
+    } else if (gameState.electrons < 100000 || !gameState.electronUpgradeAutomation) {
+        unlocksTextElectrons.textContent = "next upgrade after buying [EX] and reaching 100,000.00 electrons";
+    } else {
+        unlocksTextElectrons.textContent = "all stage 2 features unlocked";
+    }
     resetButton.textContent = "reset all progress so far for " + formatNumber(calculateElectronGain(gameState.points, gameState.multiplier, gameState.electronUpgrade5Bought), 2) + " electrons";
 
+    if (gameState.electronUpgradeUpgradeAutomation) {
+        if (gameState.electronUpgradeUpgradeAutomationEnabled) {
+            electronUpgradeAButton.textContent = "[EA] upgrade automation ON";
+        } else {
+            electronUpgradeAButton.textContent = "[EA] upgrade automation OFF";
+        }
+    }
+    
     if (gameState.electronUpgrade4Bought < gameState.electronUpgrade4Cap) {
         electronUpgrade4Button.textContent = "[E4] (" + gameState.electronUpgrade4Bought + " / " + gameState.electronUpgrade4Cap + ") 1.5× total point gain - cost: " + formatNumber(gameState.electronUpgrade4Cost, 2) + " e";
         electronUpgrade4Button.style.backgroundColor = 'magenta';
@@ -270,8 +321,10 @@ function game() {
     }
     if (!gameState.electronPrestiged) {
         prestigeContainer2.style.display = 'none';
+        electronWarningText.style.display = 'block';
     } else {
         prestigeContainer2.style.display = 'block';
+        electronWarningText.style.display = 'none';
     }
     if (gameState.electronUpgradeTripler) {
         electronUpgrade1Button.style.display = 'none';
@@ -297,6 +350,11 @@ function game() {
         rankContainer.style.display = 'none';
     } else {
         rankContainer.style.display = 'block';
+    }
+    if (!gameState.upgradeUnlockMultiplierBought) {
+        unlocksTextMulti.style.display = 'none';
+    } else {
+        unlocksTextMulti.style.display = 'block';
     }
 }
 
@@ -412,6 +470,16 @@ function electronUpgrade3Buy() {
     }
 }
 
+function electronUpgradeABuy() {
+    if (gameState.electrons >= 200 && !gameState.electronUpgradeUpgradeAutomation) {
+        gameState.electrons -= 200;
+        gameState.electronUpgradeUpgradeAutomation = true;
+        gameState.timeSinceLastUpgradeOrReset = 0;
+    }
+    if (gameState.electronUpgradeUpgradeAutomation) {
+        gameState.electronUpgradeUpgradeAutomationEnabled = !gameState.electronUpgradeUpgradeAutomationEnabled;
+    }
+}
 function electronUpgrade4Buy() {
     if (gameState.electrons >= gameState.electronUpgrade4Cost && gameState.electronUpgrade4Bought < gameState.electronUpgrade4Cap) {
         gameState.electrons -= gameState.electronUpgrade4Cost;
