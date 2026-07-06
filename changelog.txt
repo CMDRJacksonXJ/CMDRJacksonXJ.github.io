@@ -1,3 +1,11 @@
+v0.1.0 - 2026.07.05:
+! well... it's been a while, hasn't it?
++ added an ENTIRE NEW FEATURE, ranks
++ added boosts from ranks
++ the ability to sacrifice electrons
+! this is probably when i post this game to galaxy, 0.1.1 is probably the update where you can finally save
+! endgame is probably around rank 50(?) unless you want to wait like, forever for boosts #3 and #4 to scale
+
 v0.0.3 - 2026.03.25:
 ! sorry for the long hiatus, school
 ! new feature planned for next update

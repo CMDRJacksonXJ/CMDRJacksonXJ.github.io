@@ -45,7 +45,27 @@
     <br>
     <br>
     <button onclick="electronUpgradeXBuy()" id="electronUpgradeXButton" style="background-color: magenta; color: black">[EX] one time - gain 0.1% of electrons gained on reset every second - cost: 16,000.00 e</button>
-    
+    <hr>
+    </div>
+    <div id="ranks">
+    <h1 id="rank-text" style="color: greenyellow">rank: 0</h1>
+    <h2 id="progress" style="color: greenyellow">progress: 0.00 / 1.000 billion (0.00 per second)</h2>
+    <p style="color: greenyellow">progress gain is based on sacrificed electrons, and to a lesser degree, multiplier</p>
+    <p style="color: greenyellow">click the buttons below to sacrifice electrons:</p>
+    <br>
+    <button onclick="sacrificeElectrons(0.05)" style="background-color: greenyellow">5%</button>
+    <button onclick="sacrificeElectrons(0.10)" style="background-color: greenyellow">10%</button>
+    <button onclick="sacrificeElectrons(0.25)" style="background-color: greenyellow">25%</button>
+    <button onclick="sacrificeElectrons(0.50)" style="background-color: greenyellow">50%</button>
+    <button onclick="sacrificeElectrons(0.75)" style="background-color: greenyellow">75%</button>
+    <button onclick="sacrificeElectrons(1.00)" style="background-color: greenyellow">all</button>
+    <br>
+    <p id="sacrificed-text" style="color: greenyellow">you have sacrificed 0.00 electrons, granting a 1.000× multiplier to progress</p>
+    <hr>
+    <p id="rank-boost-text1" style="color: red">your rank is currently giving a +0.0% boost to points for every [M1] you've ever bought (currently 1.000×)</p>
+    <p id="rank-boost-text2" style="color: blue">as well as a +0.0% boost to multiplier for every [B3] you've ever bought (currently 1.000×)</p>
+    <p id="rank-boost-text3" style="color: lightpink">as well as a +0.0% boost to both for every second spent in this electron reset (currently 1.000×)</p>
+    <p id="rank-boost-text4" style="color: yellow">and finally a ^+0.00000000 boost to passive electron gain for every second spent without purchasing an upgrade in this electron reset (currently ^1.00000000, capped at ^1.60000000)</p>
     </div>
     <script src="script.js"></script>
 </body>

@@ -1,6 +1,7 @@
 ﻿// This is a game about gaining a lot of points. Really quickly.
-// As is right now, pretty horribly optimized in code space.
-// let totalHoursSpentDeveloping = 7.5;
+// As is right now, pretty horribly optimized. Ah, whatever. Let's hope it doesn't bite me in the ass later.
+// let totalHoursSpentDeveloping = 11;
+// VERSION 0.1.0 IS FINALLY DONE AAAAAAAAAAAAAAAAAAAA
 
 // Define game variables
 
@@ -36,6 +37,18 @@ let electronUpgrade5Cost = 50;
 let electronUpgrade5Bought = 0;
 let electronUpgrade5Cap = 5;
 let electronPrestiged = false;
+let ranksUnlocked = false;
+
+// Variables for ranks
+
+let rank = 0;
+let sacrificedElectrons = 0;
+let progress = 0;
+let progressRequirement = 1000000000 * (1 + Math.pow(rank, (3 + (Math.min(rank, 300) / 15))));
+let multUpgrade1BoughtEver = 0;
+let upgrade3BoughtEver = 0;
+let timeSinceLastElectronReset = 0;
+let timeSinceLastUpgradeOrReset = 0;
 
 // Define HTML elements
 
@@ -62,6 +75,16 @@ const electronUpgradeXButton = document.getElementById("electronUpgradeXButton")
 
 const prestigeContainer1 = document.getElementById("prestige-base");
 const prestigeContainer2 = document.getElementById("prestige-upgrades");
+const rankContainer = document.getElementById("ranks");
+
+const rankText = document.getElementById("rank-text");
+const progressText = document.getElementById("progress");
+const electronsSacrificedText = document.getElementById("sacrificed-text");
+const rankBoostText1 = document.getElementById("rank-boost-text1");
+const rankBoostText2 = document.getElementById("rank-boost-text2");
+const rankBoostText3 = document.getElementById("rank-boost-text3");
+const rankBoostText4 = document.getElementById("rank-boost-text4");
+
 
 
 setInterval(game, 20);
@@ -96,12 +119,20 @@ function calculateElectronBoost(electrons_c) {
     return Math.pow(electrons_c + 1, (2/3));
 }
 
+// Calculates the boost to progress gain given a certain number of sacrificed electrons and multiplier
+
+function calculateProgressGainPerSecond(electrons_sac, multiplier_cur) {
+    return Math.pow(multiplier_cur, (1/3)) * Math.pow(electrons_sac, (4/3)) / 100;
+}
+
 
 // Update and hide things when needed
 
 function game() {
     pointsPerClick = (1 + upgrade1Bought) * multiplier * Math.pow(2, upgrade3Bought) * Math.pow(1.5, electronUpgrade4Bought) * calculateElectronBoost(electrons);
-    pointsPerSecond = pointsPerClick * 0.5 * upgrade2Bought;
+
+    pointsPerSecond = pointsPerClick * 0.5 * upgrade2Bought * (1 + (multUpgrade1BoughtEver * (rank * 0.003))) * (1 + (timeSinceLastElectronReset * (rank * 0.001)));
+
     let EU1multiplier = 1;
     if (electronUpgradeTripler) {
         EU1multiplier = 3;
@@ -110,26 +141,41 @@ function game() {
     }
     if (multUpgradePointBoostBought) {
         if (electronUpgradeM2Improvement) {
-            multiplierPerSecond = (0.001 + (0.001 * multUpgrade1Bought)) * Math.log(points + 1) * (2/3) * EU1multiplier;
+            multiplierPerSecond = (0.001 + (0.001 * multUpgrade1Bought)) * Math.log(points + 1) * (2/3) * EU1multiplier * (1 + (upgrade3BoughtEver * (rank * 0.003))) * (1 + (timeSinceLastElectronReset * (rank * 0.001)));
         } else {
-            multiplierPerSecond = (0.001 + (0.001 * multUpgrade1Bought)) * Math.log10(points + 1) * EU1multiplier;
+            multiplierPerSecond = (0.001 + (0.001 * multUpgrade1Bought)) * Math.log10(points + 1) * EU1multiplier * (1 + (upgrade3BoughtEver * (rank * 0.003))) * (1 + (timeSinceLastElectronReset * (rank * 0.001)));
         }
         
     } else {
         multiplierPerSecond = (0.001 + (0.001 * multUpgrade1Bought)) * EU1multiplier;
     }
     points += pointsPerSecond / 50;
+    timeSinceLastElectronReset += 0.02;
+    timeSinceLastUpgradeOrReset += 0.02;
 
     if (upgradeUnlockMultiplierBought) {
         multiplier += multiplierPerSecond / 50;
     }
 
     if (electronUpgradeAutomation) {
-        electrons += calculateElectronGain(points, multiplier, electronUpgrade5Bought) / 50000;
+        electrons += Math.pow(calculateElectronGain(points, multiplier, electronUpgrade5Bought) / 1000, Math.min(1 + (rank * 0.00000004 * timeSinceLastUpgradeOrReset), 1.6)) / 50;
     }
 
     if (points > 10000000000) {
         prestigeUnlockThresholdReached = true;
+    }
+
+    if (electrons > 100000) {
+        ranksUnlocked = true;
+    }
+
+    if (ranksUnlocked) {
+        progress += calculateProgressGainPerSecond(sacrificedElectrons, multiplier) / 50;
+        if (progress > progressRequirement) {
+            progress -= progressRequirement;
+            rank++;
+            progressRequirement = 1000000000 * (1 + Math.pow(rank, (3 + (Math.min(rank, 300) / 15))));
+        }
     }
 
     pointsText.textContent = "points: " + formatNumber(points, 2);
@@ -165,6 +211,14 @@ function game() {
         electronUpgrade5Button.textContent = "[E5] (" + electronUpgrade5Bought + " / " + electronUpgrade5Cap + ") improve the prestige formula - maxed!";
         electronUpgrade5Button.style.backgroundColor = 'purple';
     }
+
+    rankText.textContent = "rank: " + rank;
+    progressText.textContent = "progress: " + formatNumber(progress, 2) +" / " + formatNumber(progressRequirement, 2) + " (" + formatNumber(calculateProgressGainPerSecond(sacrificedElectrons, multiplier), 2) + " per second)"
+    electronsSacrificedText.textContent = "you have sacrificed " + formatNumber(sacrificedElectrons, 2) + " electrons, granting a " + formatNumber(Math.pow(sacrificedElectrons, (4/3)), 3) + "× multiplier to progress"
+    rankBoostText1.textContent = "your rank is currently giving a +" + formatNumber(rank * 0.3, 1) + "% boost to points for every [M1] you've ever bought (currently " + formatNumber(1 + (rank * 0.003 * multUpgrade1BoughtEver), 3) + "×)"
+    rankBoostText2.textContent = "as well as a +" + formatNumber(rank * 0.3, 1) + "% boost to multiplier for every [B3] you've ever bought (currently " + formatNumber(1 + (rank * 0.003 * upgrade3BoughtEver), 3) + "×)"
+    rankBoostText3.textContent = "as well as a +" + formatNumber(rank * 0.1, 1) + "% boost to both for every second spent in this electron reset (currently " + formatNumber(1 + (rank * 0.003 * timeSinceLastElectronReset), 3) + "×)"
+    rankBoostText4.textContent = "and finally a ^+" + formatNumber(rank * 0.00000004, 8) + " boost to passive electron gain for every second spent without purchasing an upgrade in this electron reset (currently ^" + formatNumber(1 + (rank * 0.00000004 * timeSinceLastUpgradeOrReset), 8) + ", capped at ^1.60000000)"
 
     if (upgrade1Bought < 10) {
         upgrade2Button.style.display = 'none';
@@ -232,6 +286,11 @@ function game() {
     } else {
         electronUpgradeXButton.style.display = 'block';
     }
+    if (!ranksUnlocked) {
+        rankContainer.style.display = 'none';
+    } else {
+        rankContainer.style.display = 'block';
+    }
 }
 
 function gainPoint() {
@@ -243,6 +302,7 @@ function upgrade1Buy() {
         points -= upgrade1Cost;
         upgrade1Cost *= 1.085;
         upgrade1Bought++;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -251,6 +311,7 @@ function upgrade2Buy() {
         points -= upgrade2Cost;
         upgrade2Cost *= 1.12;
         upgrade2Bought++;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -259,6 +320,8 @@ function upgrade3Buy() {
         points -= upgrade3Cost;
         upgrade3Cost *= 7;
         upgrade3Bought++;
+        upgrade3BoughtEver++;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -266,6 +329,7 @@ function multUnlockBuy() {
     if (points >= 400000) {
         points -= 400000;
         upgradeUnlockMultiplierBought = true;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -274,6 +338,8 @@ function multUpgrade1Buy() {
         points -= multUpgrade1Cost;
         multUpgrade1Cost *= 1.15;
         multUpgrade1Bought++;
+        multUpgrade1BoughtEver++;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -281,6 +347,7 @@ function multUpgrade2Buy() {
     if (points >= 25000000) {
         points -= 25000000;
         multUpgradePointBoostBought = true;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -304,12 +371,15 @@ function resetGame() {
     multUpgradePointBoostBought = false;
     multiplier = 1.000;
     multiplierPerSecond = 0.001;
+    timeSinceLastElectronReset = 0;
+    timeSinceLastUpgradeOrReset = 0;
 }
 
 function electronUpgrade1Buy() {
     if (electrons >= 5) {
         electrons -= 5;
         electronUpgradeTripler = true;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -317,6 +387,7 @@ function electronUpgrade2Buy() {
     if (electrons >= 15) {
         electrons -= 15;
         electronUpgradeM2Improvement = true;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -324,6 +395,7 @@ function electronUpgrade3Buy() {
     if (electrons >= 25) {
         electrons -= 25;
         electronUpgradePersistence = true;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -332,6 +404,7 @@ function electronUpgrade4Buy() {
         electrons -= electronUpgrade4Cost;
         electronUpgrade4Cost *= 1.7;
         electronUpgrade4Bought++;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -340,6 +413,7 @@ function electronUpgrade5Buy() {
         electrons -= electronUpgrade5Cost;
         electronUpgrade5Cost *= 2.5;
         electronUpgrade5Bought++;
+        timeSinceLastUpgradeOrReset = 0;
     }
 }
 
@@ -347,5 +421,11 @@ function electronUpgradeXBuy() {
     if (electrons >= 16000) {
         electrons -= 16000;
         electronUpgradeAutomation = true;
+        timeSinceLastUpgradeOrReset = 0;
     }
+}
+
+function sacrificeElectrons(fraction_of) {
+    sacrificedElectrons += electrons * fraction_of
+    electrons -= electrons * fraction_of
 }
