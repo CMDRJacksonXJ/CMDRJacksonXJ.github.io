@@ -5,7 +5,7 @@
 // if anyone sees this, thanks to galaxy's Oversight committee for helping me identify what was wrong in the game
 
 // Define game variables
-gameState = {
+initialGameState = {
     points: 0,
     pointsPerClick: 1,
     pointsPerSecond: 0,
@@ -49,6 +49,8 @@ gameState = {
     timeSinceLastElectronReset: 0,
     timeSinceLastUpgradeOrReset: 0
 };
+
+gameState = initialGameState;
 
 let ticks = 0;
 
@@ -97,6 +99,11 @@ let savedData = localStorage.getItem('IGAGMPSave');
 
 if (savedData) {
     gameState = JSON.parse(savedData);
+    for (let element_initial in initialGameState) {
+        if (!gameState.element_initial) {
+            gameState.element_initial = initialGameState.element_initial;
+        }
+    }
 }
 
 setInterval(game, 20);

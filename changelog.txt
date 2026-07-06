@@ -1,3 +1,7 @@
+v0.1.2.1 - 2026.07.06:
+! yes, this change is so small there's now a fourth number
++ fixed a bug that would cause null values if loading a save from a previous version
+
 v0.1.2 - 2026.07.06:
 + added upgrade [EA], also known as automation upgrade
 + added notes to every section saying when the next upgrade/feature will be unlocked
