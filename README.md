@@ -1,1 +1,6 @@
-jackson's homepage on github for whatever he decides to make
+# An Incremental Game About Getting Many Points
+Read the title.
+My first incremental game.
+Saving not existent (yet).
+Endgame around rank 50.
+Enjoy :D
