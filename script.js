@@ -1,7 +1,7 @@
 ﻿// This is a game about gaining a lot of points. Really quickly.
 // As is right now, pretty horribly optimized. Ah, whatever. Let's hope it doesn't bite me in the ass later.
 // Dev note: it bit me in the ass later. I now have to put all of the variables in a JSON and rewrite a good chunk of the game...
-// let totalHoursSpentDeveloping = 14.5;
+// let totalHoursSpentDeveloping = 16;
 // if anyone sees this, thanks to galaxy's Oversight committee for helping me identify what was wrong in the game
 
 // Define game variables
@@ -192,7 +192,7 @@ function game() {
     }
 
     if (gameState.electronUpgradeAutomation) {
-        gameState.electrons += Math.pow(calculateElectronGain(gameState.points, gameState.multiplier, gameState.electronUpgrade5Bought) / 1000, Math.min(1 + (gameState.rank * 0.00000004 * gameState.timeSinceLastUpgradeOrReset), 1.6)) / 50;
+        gameState.electrons += Math.pow(calculateElectronGain(gameState.points, gameState.multiplier, gameState.electronUpgrade5Bought) / 1000, Math.min(1 + (gameState.rank * 0.00000004 * gameState.timeSinceLastUpgradeOrReset), 1.25)) / 50;
     }
 
     if (gameState.points > 10000000000 && gameState.multUpgradePointBoostBought) {
@@ -203,12 +203,17 @@ function game() {
         gameState.ranksUnlocked = true;
     }
 
+    if (gameState.rank > 1000) {
+        gameState.rank = 1000;
+    }
+
+
     if (gameState.ranksUnlocked) {
         gameState.progress += calculateProgressGainPerSecond(gameState.sacrificedElectrons, gameState.multiplier) / 50;
-        if (gameState.progress > gameState.progressRequirement) {
+        if (gameState.progress > gameState.progressRequirement && gameState.rank != 1000) {
             gameState.progress -= gameState.progressRequirement;
             gameState.rank++;
-            gameState.progressRequirement = 200000000 * (1 + Math.pow(gameState.rank, (3 + (Math.min(gameState.rank, 300) / 15))));
+            gameState.progressRequirement = 200000000 * (1 + Math.pow(gameState.rank, (1 + (Math.min(gameState.rank, 500) / 15))));
         }
     }
 
@@ -219,7 +224,7 @@ function game() {
     } else if (gameState.pointsPerSecond < 500) {
         unlocksTextPoints.textContent = "next feature at 500 points per second";
     } else if (gameState.multUpgrade1Bought < 15) {
-        unlocksTextPoints.textContent = "next upgrade at 15 purchases of [M1]";
+        unlocksTextPoints.textContent = "next upgrade at 15 purchases of [M1] (unlock multiplier first)";
     } else {
         unlocksTextPoints.textContent = "all stage 1a features unlocked";
     }
@@ -237,7 +242,7 @@ function game() {
     passiveMultText.textContent = "per second: +" + formatNumber(gameState.multiplierPerSecond, 3) + "×";
     if (gameState.multiplier < 5) {
         unlocksTextMulti.textContent = "next upgrade at 5.000× multiplier";
-    } else if (gameState.points < 10000000000 || !gameState.multUpgradePointBoostBought) {
+    } else if (!gameState.prestigeUnlockThresholdReached || !gameState.multUpgradePointBoostBought) {
         unlocksTextMulti.textContent = "next feature at 10.000 billion points and after buying [M2]";
     } else {
         unlocksTextMulti.textContent = "all stage 1b features unlocked";
@@ -277,13 +282,17 @@ function game() {
         electronUpgrade5Button.style.backgroundColor = 'purple';
     }
 
-    rankText.textContent = "rank: " + gameState.rank;
+    if (gameState.rank < 1000) {
+        rankText.textContent = "rank: " + gameState.rank;
+    } else {
+        rankText.textContent = "rank: 1000 (MAX)"
+    }
     progressText.textContent = "progress: " + formatNumber(gameState.progress, 2) +" / " + formatNumber(gameState.progressRequirement, 2) + " (" + formatNumber(calculateProgressGainPerSecond(gameState.sacrificedElectrons, gameState.multiplier), 2) + " per second)"
     electronsSacrificedText.textContent = "you have sacrificed " + formatNumber(gameState.sacrificedElectrons, 2) + " electrons, granting a " + formatNumber(Math.pow(gameState.sacrificedElectrons, (4/3)), 3) + "× multiplier to progress"
     rankBoostText1.textContent = "your rank is currently giving a +" + formatNumber(gameState.rank * 0.3, 1) + "% boost to points per second for every [M1] you've ever bought (currently " + formatNumber(1 + (gameState.rank * 0.003 * gameState.multUpgrade1BoughtEver), 3) + "×)"
     rankBoostText2.textContent = "as well as a +" + formatNumber(gameState.rank * 0.3, 1) + "% boost to multiplier for every [B3] you've ever bought (currently " + formatNumber(1 + (gameState.rank * 0.003 * gameState.upgrade3BoughtEver), 3) + "×)"
     rankBoostText3.textContent = "as well as a +" + formatNumber(gameState.rank * 0.1, 1) + "% boost to both for every second spent in this electron reset (currently " + formatNumber(1 + (gameState.rank * 0.001 * gameState.timeSinceLastElectronReset), 3) + "×)"
-    rankBoostText4.textContent = "and finally a ^+" + formatNumber(gameState.rank * 0.00000004, 8) + " boost to passive electron gain for every second spent without purchasing an upgrade in this electron reset (currently ^" + formatNumber(1 + (gameState.rank * 0.00000004 * gameState.timeSinceLastUpgradeOrReset), 8) + ", capped at ^1.60000000)"
+    rankBoostText4.textContent = "and finally a ^+" + formatNumber(gameState.rank * 0.00000004, 8) + " boost to passive electron gain for every second spent without purchasing an upgrade in this electron reset (currently ^" + formatNumber(min(1 + (gameState.rank * 0.00000004 * gameState.timeSinceLastUpgradeOrReset), 1.25), 8) + ", capped at ^1.25000000)"
 
     if (gameState.upgrade1Bought < 10) {
         upgrade2Button.style.display = 'none';
@@ -404,8 +413,8 @@ function upgrade3Buy() {
 }
 
 function multUnlockBuy() {
-    if (gameState.points >= 400000) {
-        gameState.points -= 400000;
+    if (gameState.points >= 100000) {
+        gameState.points -= 100000;
         gameState.upgradeUnlockMultiplierBought = true;
         gameState.timeSinceLastUpgradeOrReset = 0;
     }
