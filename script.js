@@ -292,7 +292,7 @@ function game() {
     rankBoostText1.textContent = "your rank is currently giving a +" + formatNumber(gameState.rank * 0.3, 1) + "% boost to points per second for every [M1] you've ever bought (currently " + formatNumber(1 + (gameState.rank * 0.003 * gameState.multUpgrade1BoughtEver), 3) + "×)"
     rankBoostText2.textContent = "as well as a +" + formatNumber(gameState.rank * 0.3, 1) + "% boost to multiplier for every [B3] you've ever bought (currently " + formatNumber(1 + (gameState.rank * 0.003 * gameState.upgrade3BoughtEver), 3) + "×)"
     rankBoostText3.textContent = "as well as a +" + formatNumber(gameState.rank * 0.1, 1) + "% boost to both for every second spent in this electron reset (currently " + formatNumber(1 + (gameState.rank * 0.001 * gameState.timeSinceLastElectronReset), 3) + "×)"
-    rankBoostText4.textContent = "and finally a ^+" + formatNumber(gameState.rank * 0.00000004, 8) + " boost to passive electron gain for every second spent without purchasing an upgrade in this electron reset (currently ^" + formatNumber(min(1 + (gameState.rank * 0.00000004 * gameState.timeSinceLastUpgradeOrReset), 1.25), 8) + ", capped at ^1.25000000)"
+    rankBoostText4.textContent = "and finally a ^+" + formatNumber(gameState.rank * 0.00000004, 8) + " boost to passive electron gain for every second spent without purchasing an upgrade in this electron reset (currently ^" + formatNumber(Math.min(1 + (gameState.rank * 0.00000004 * gameState.timeSinceLastUpgradeOrReset), 1.25), 8) + ", capped at ^1.25000000)"
 
     if (gameState.upgrade1Bought < 10) {
         upgrade2Button.style.display = 'none';
