@@ -1,3 +1,7 @@
+v0.1.4 - 2026.07.09 - more bugs...
++ fixed a bug where EA would sometimes spend points on nothing
++ added a count for all buyables of how many have been bought
+
 v0.1.3 - 2026.07.08 - the bugfixing update:
 ! bugs, bugs, bugs
 + too many bugs fixed

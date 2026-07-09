@@ -229,8 +229,8 @@ function game() {
         unlocksTextPoints.textContent = "all stage 1a features unlocked";
     }
     pointsButton.textContent = "+" + formatNumber(gameState.pointsPerClick, 2) + " points";
-    upgrade1Button.textContent = "[B1] +1 base points per click - cost: " + formatNumber(gameState.upgrade1Cost, 2);
-    upgrade2Button.textContent = "[B2] +50% of your click in points every second - cost: " + formatNumber(gameState.upgrade2Cost, 2);
+    upgrade1Button.textContent = "[B1] +1 base points per click - cost: " + formatNumber(gameState.upgrade1Cost, 2) + ", bought: " + gameState.upgrade1Bought;
+    upgrade2Button.textContent = "[B2] +50% of your click in points every second - cost: " + formatNumber(gameState.upgrade2Cost, 2)  + ", bought: " + gameState.upgrade2Bought;
     if (gameState.upgrade3Bought < gameState.upgrade3Cap) {
         upgrade3Button.textContent = "[B3] (" + gameState.upgrade3Bought + " / 10) double total point gain - cost: " + formatNumber(gameState.upgrade3Cost, 2);
         upgrade3Button.style.backgroundColor = 'lightblue';
@@ -247,12 +247,12 @@ function game() {
     } else {
         unlocksTextMulti.textContent = "all stage 1b features unlocked";
     }
-    multUpgrade1Button.textContent = "[M1] +0.001× per second - cost: " + formatNumber(gameState.multUpgrade1Cost, 2);
+    multUpgrade1Button.textContent = "[M1] +0.001× per second - cost: " + formatNumber(gameState.multUpgrade1Cost, 2)  + ", bought: " + gameState.multUpgrade1Bought;
     electronText.textContent = "electrons: " + formatNumber(gameState.electrons, 2);
     electronBoostText.textContent = "currently boosting points by " + formatNumber(calculateElectronBoost(gameState.electrons), 3) + "×";
     if ((gameState.electronUpgrade4Bought != gameState.electronUpgrade4Cap || gameState.electronUpgrade5Bought != gameState.electronUpgrade5Cap)) {
         unlocksTextElectrons.textContent = "next upgrade after maxing out [E4] and [E5]";
-    } else if (gameState.electrons < 100000 || !gameState.electronUpgradeAutomation) {
+    } else if (gameState.ranksUnlocked || !gameState.electronUpgradeAutomation) {
         unlocksTextElectrons.textContent = "next upgrade after buying [EX] and reaching 100,000.00 electrons";
     } else {
         unlocksTextElectrons.textContent = "all stage 2 features unlocked";
@@ -413,7 +413,7 @@ function upgrade3Buy() {
 }
 
 function multUnlockBuy() {
-    if (gameState.points >= 100000) {
+    if (gameState.points >= 100000 && !gameState.upgradeUnlockMultiplierBought) {
         gameState.points -= 100000;
         gameState.upgradeUnlockMultiplierBought = true;
         gameState.timeSinceLastUpgradeOrReset = 0;
@@ -431,7 +431,7 @@ function multUpgrade1Buy() {
 }
 
 function multUpgrade2Buy() {
-    if (gameState.points >= 25000000) {
+    if (gameState.points >= 25000000 && !gameState.multUpgradePointBoostBought) {
         gameState.points -= 25000000;
         gameState.multUpgradePointBoostBought = true;
         gameState.timeSinceLastUpgradeOrReset = 0;
